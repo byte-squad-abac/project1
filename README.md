@@ -91,5 +91,11 @@ mvn clean package     # or use Gradle if configured
 
 # 3. Run
 java -jar target/space-invaders.jar
+```
+## Team
+
+Lut Lat Aung - 6511163 [Github](https://github.com/Lut-Lat-Aung)<br>
+Lu Phone Maw -                   <br>
+Wai Yan Paing -                  <br>
 
 
