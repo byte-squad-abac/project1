@@ -27,8 +27,8 @@ public class TitleScene extends JPanel {
 
     public TitleScene(Game game) {
         this.game = game;
-        // initBoard();
-        // initTitle();
+         initBoard();
+         initTitle();
     }
 
     private void initBoard() {
@@ -110,6 +110,12 @@ public class TitleScene extends JPanel {
         g.setColor(Color.gray);
         g.setFont(g.getFont().deriveFont(10f));
         g.drawString("Game by Chayapol", 10, 650);
+
+        // Draw Team Name
+        String teamName = "Team Name: Byte Squad";
+        g.setColor(Color.green);
+        g.setFont(g.getFont().deriveFont(20f));
+        g.drawString(teamName, 10, 20);
 
         Toolkit.getDefaultToolkit().sync();
     }
