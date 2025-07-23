@@ -1,5 +1,6 @@
 package gdd;
 
+import gdd.scene.BossFight;
 import gdd.scene.Scene1;
 import gdd.scene.TitleScene;
 import javax.swing.JFrame;
@@ -8,10 +9,12 @@ public class Game extends JFrame  {
 
     TitleScene titleScene;
     Scene1 scene1;
+    BossFight bossFight;
 
     public Game() {
         titleScene = new TitleScene(this);
         scene1 = new Scene1(this);
+        bossFight = new BossFight(this);
         initUI();
         loadTitle();
         //loadScene2();
@@ -38,7 +41,12 @@ public class Game extends JFrame  {
     }
 
     public void loadScene1() {
-        // ....
+        getContentPane().removeAll();
+        add(bossFight);
+        titleScene.stop();
+        bossFight.start();
+        revalidate();
+        repaint();
     }
 
     public void loadScene2() {

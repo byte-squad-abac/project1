@@ -99,8 +99,8 @@ public class TitleScene extends JPanel {
             g.setColor(Color.white);
         }
 
-        g.setFont(g.getFont().deriveFont(32f));
-        String text = "Press SPACE to Start";
+        g.setFont(g.getFont().deriveFont(22f));
+        String text = "Press SPACE to Start Scene 1 or ENTER for Boss Fight";
         int stringWidth = g.getFontMetrics().stringWidth(text);
         int x = (d.width - stringWidth) / 2;
         // int stringHeight = g.getFontMetrics().getAscent();
@@ -151,6 +151,10 @@ public class TitleScene extends JPanel {
             if (key == KeyEvent.VK_SPACE) {
                 // Load the next scene
                 game.loadScene2();
+            }
+
+            if (key == KeyEvent.VK_ENTER){
+                game.loadScene1();
             }
 
         }
