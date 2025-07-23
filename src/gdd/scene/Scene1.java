@@ -43,6 +43,9 @@ public class Scene1 extends JPanel {
     private Player player;
     // private Shot shot;
 
+    private int score = 0;
+    private int playerSpeed = 5;
+
     final int BLOCKHEIGHT = 50;
     final int BLOCKWIDTH = 50;
 
@@ -360,7 +363,14 @@ public class Scene1 extends JPanel {
             gameOver(g);
         }
 
+        g.setColor(Color.white);
+g.setFont(new Font("Arial", Font.BOLD, 14));
+g.drawString("Score: " + score, 10, 50);
+g.drawString("Speed: " + playerSpeed, 10, 70);
+
+
         Toolkit.getDefaultToolkit().sync();
+
     }
 
     private void gameOver(Graphics g) {
@@ -426,6 +436,8 @@ public class Scene1 extends JPanel {
                 powerup.act();
                 if (powerup.collidesWith(player)) {
                     powerup.upgrade(player);
+                    playerSpeed = player.getSpeed(); // Update speed if powerup affects speed
+
                 }
             }
         }
@@ -460,6 +472,8 @@ public class Scene1 extends JPanel {
                         enemy.setImage(ii.getImage());
                         enemy.setDying(true);
                         explosions.add(new Explosion(enemyX, enemyY));
+                        score += 10;  // Add score when enemy is hit
+                        System.out.println("Score: " + score);
                         deaths++;
                         shot.die();
                         shotsToRemove.add(shot);
@@ -481,31 +495,31 @@ public class Scene1 extends JPanel {
         shots.removeAll(shotsToRemove);
 
         // enemies
-        // for (Enemy enemy : enemies) {
-        //     int x = enemy.getX();
-        //     if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
-        //         direction = -1;
-        //         for (Enemy e2 : enemies) {
-        //             e2.setY(e2.getY() + GO_DOWN);
-        //         }
-        //     }
-        //     if (x <= BORDER_LEFT && direction != 1) {
-        //         direction = 1;
-        //         for (Enemy e : enemies) {
-        //             e.setY(e.getY() + GO_DOWN);
-        //         }
-        //     }
-        // }
-        // for (Enemy enemy : enemies) {
-        //     if (enemy.isVisible()) {
-        //         int y = enemy.getY();
-        //         if (y > GROUND - ALIEN_HEIGHT) {
-        //             inGame = false;
-        //             message = "Invasion!";
-        //         }
-        //         enemy.act(direction);
-        //     }
-        // }
+        for (Enemy enemy : enemies) {
+            int x = enemy.getX();
+            if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
+                direction = -1;
+                for (Enemy e2 : enemies) {
+                    e2.setY(e2.getY() + GO_DOWN);
+                }
+            }
+            if (x <= BORDER_LEFT && direction != 1) {
+                direction = 1;
+                for (Enemy e : enemies) {
+                    e.setY(e.getY() + GO_DOWN);
+                }
+            }
+        }
+        for (Enemy enemy : enemies) {
+            if (enemy.isVisible()) {
+                int y = enemy.getY();
+                if (y > GROUND - ALIEN_HEIGHT) {
+                    inGame = false;
+                    message = "Invasion!";
+                }
+                enemy.act(direction);
+            }
+        }
         // bombs - collision detection
         // Bomb is with enemy, so it loops over enemies
         /*
