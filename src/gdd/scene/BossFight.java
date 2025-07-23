@@ -31,7 +31,7 @@ import javax.swing.Timer;
 
 
 
-public class Scene1 extends JPanel {
+public class BossFight extends JPanel {
 
 
     
@@ -95,7 +95,7 @@ public class Scene1 extends JPanel {
     private int lastRowToShow;
     private int firstRowToShow;
 
-    public Scene1(Game game) {
+    public BossFight(Game game) {
         this.game = game;
         // initBoard();
         // gameInit();
@@ -329,13 +329,16 @@ public class Scene1 extends JPanel {
 
     private void doDrawing(Graphics g) {
 
+        
+
+
         g.setColor(Color.black);
         g.fillRect(0, 0, d.width, d.height);
 
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
 
-        String Stage = "This is Stage 1: Scene 1";
+        String Stage = "This is Stage 2: Boss Fight";
         g.setColor(Color.green);
         // g.setFont(g.getFont().deriveFont(20f));
         g.drawString(Stage, 10, 30);
