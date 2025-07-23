@@ -5,6 +5,20 @@
 > **Due**: **Monday, 28 July 2025**  
 > **Template Starter**: `mchayapol/gdd-space-invaders-project`
 
+
+## Table of Contents
+
+1. [Overview](#overview)  
+2. [Gameplay & Features](#gameplay--features)  
+3. [Build & Run](#build--run)  
+4. [Controls](#controls)  
+5. [Repository Structure](#repository-structure)  
+6. [Description](#description)  
+7. [Team](#team)  
+8. [Requirements](#requirements)
+
+---
+
 ## Description
 
 - Start from this code template  
@@ -18,10 +32,10 @@
 
 ## Requirements
 
-1. Side-scroll (Optional)
-2. Must extend in-class codebase only  
-3. Title Scene with team names  
-4. At least **two** stages  
+1. Side-scroll (Optional) 
+2. Must extend in-class codebase only  ☑️
+3. Title Scene with team names  ☑️
+4. At least **two** stages  ☑️
 5. Each stage plays ~5 minutes (load array from external CSV)  
    - Ref: [Reading a CSV File into an Array | Baeldung](https://www.baeldung.com/java-csv-file-array)  
 6. Last stage has a boss fight  
@@ -39,18 +53,6 @@
 
 ---
 
-## Table of Contents
-
-1. [Overview](#overview)  
-2. [Gameplay & Features](#gameplay--features)  
-3. [Build & Run](#build--run)  
-4. [Controls](#controls)  
-5. [Repository Structure](#repository-structure)  
-6. [Assets & Licences](#assets--licences)  
-7. [Team](#team)  
-8. [Submission Checklist](#submission-checklist)
-
----
 
 ## Overview
 
