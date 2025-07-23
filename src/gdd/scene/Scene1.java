@@ -121,15 +121,24 @@ public class Scene1 extends JPanel {
         spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
         spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
 
+        spawnMap.put(350, new SpawnDetails("PowerUp-SpeedUp", 120, 0));
+
         spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
         spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
         spawnMap.put(402, new SpawnDetails("Alien1", 500, 0));
         spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
 
+        
+        spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
+        
+        spawnMap.put(470, new SpawnDetails("PowerUp-SpeedUp", 320, 0));
+
         spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
         spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
         spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
         spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
+
+        
     }
 
     private void initBoard() {
@@ -420,7 +429,7 @@ g.drawString("Speed: " + playerSpeed, 10, 70);
                     break;
             }
         }
-
+        final int NUMBER_OF_ALIENS_TO_DESTROY = 10; // Adjust this number as needed
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
             timer.stop();
