@@ -43,8 +43,10 @@ public class Scene1 extends JPanel {
     private Player player;
     // private Shot shot;
 
-    public int score = 0;
-    private int playerSpeed = 5;
+    public int score = 0; // Score for the player, to be passed to BossFight
+    private int playerSpeed = 5; // Player speed, can be modified by power-ups
+    private int shotType = 1; // 1 = single, 2 = double, 3 = triple, etc.
+
 
     final int BLOCKHEIGHT = 50;
     final int BLOCKWIDTH = 50;
@@ -387,6 +389,8 @@ public class Scene1 extends JPanel {
         g.setFont(new Font("Arial", Font.BOLD, 14));
         g.drawString("Score: " + score, 10, 50);
         g.drawString("Speed: " + playerSpeed, 10, 70);
+        g.drawString("Shot Type: " + shotType, 10, 90);
+
 
 
         Toolkit.getDefaultToolkit().sync();
@@ -423,6 +427,8 @@ public class Scene1 extends JPanel {
     }
 
     private void update() {
+
+        
 
 
         // Check enemy spawn
@@ -469,6 +475,7 @@ public class Scene1 extends JPanel {
                 if (powerup.collidesWith(player)) {
                     powerup.upgrade(player);
                     playerSpeed = player.getSpeed(); // Update speed if powerup affects speed
+                    shotType = Math.min(shotType + 1, 3); // Testing shotType with power-ups for now. Later shot upgrade sprint will be implemented
 
                 }
             }
@@ -512,16 +519,22 @@ public class Scene1 extends JPanel {
                     }
                 }
 
-                int y = shot.getY();
-                // y -= 4;
-                y -= 20;
+                // int y = shot.getY();
+                // // y -= 4;
+                // y -= 20;
 
-                if (y < 0) {
-                    shot.die();
+                // if (y < 0) {
+                //     shot.die();
+                //     shotsToRemove.add(shot);
+                // } else {
+                //     shot.setY(y);
+                // }
+                shot.act();
+
+                if (!shot.isVisible()) {
                     shotsToRemove.add(shot);
-                } else {
-                    shot.setY(y);
                 }
+
             }
         }
         shots.removeAll(shotsToRemove);
@@ -626,14 +639,40 @@ public class Scene1 extends JPanel {
 
             int key = e.getKeyCode();
 
+            // Shooting Only one
+
+            // if (key == KeyEvent.VK_SPACE && inGame) {
+            //     System.out.println("Shots: " + shots.size());
+            //     if (shots.size() < 4) {
+            //         for (int i = 0; i < shotType; i++) {
+            //             // Spread out shots horizontally for visual clarity
+            //             int offsetX = (i - (shotType - 1) / 2) * 10;
+            //             shots.add(new Shot(x + offsetX, y));
+            //         }
+            //     }
+            // }
+
+            // Shooting with shotType
+            
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
                 if (shots.size() < 4) {
-                    // Create a new shot and add it to the list
-                    Shot shot = new Shot(x, y);
-                    shots.add(shot);
+                    if (shotType == 1) {
+                        // One straight shot
+                        shots.add(new Shot(x, y, 0, -20));
+                    } else if (shotType == 2) {
+                        // Two diagonal shots
+                        shots.add(new Shot(x - 10, y, -5, -20)); // left
+                        shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    } else if (shotType >= 3) {
+                        // Two diagonals + one center
+                        shots.add(new Shot(x, y, 0, -20));       // center
+                        shots.add(new Shot(x - 10, y, -5, -20)); // left
+                        shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    }
                 }
             }
+
 
         }
     }

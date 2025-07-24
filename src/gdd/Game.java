@@ -43,7 +43,7 @@ public class Game extends JFrame  {
         bossFight = new BossFight(this, scene1.score);
         getContentPane().removeAll();
         add(bossFight);
-        titleScene.stop();
+        scene1.stop();
         bossFight.start();
         revalidate();
         repaint();
