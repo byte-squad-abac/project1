@@ -43,6 +43,10 @@ public class BossFight extends JPanel {
     private Player player;
     // private Shot shot;
 
+
+    public int score;
+    private int playerSpeed = 5; // Player speed is reset to 5 for boss level
+
     final int BLOCKHEIGHT = 50;
     final int BLOCKWIDTH = 50;
 
@@ -95,8 +99,9 @@ public class BossFight extends JPanel {
     private int lastRowToShow;
     private int firstRowToShow;
 
-    public BossFight(Game game) {
+    public BossFight(Game game, int score) {
         this.game = game;
+        this.score = score; // get the score from Scene1, ref in Game.java
         // initBoard();
         // gameInit();
         loadSpawnDetails();
@@ -363,7 +368,15 @@ public class BossFight extends JPanel {
             gameOver(g);
         }
 
+        
+        g.setColor(Color.white);
+        g.setFont(new Font("Arial", Font.BOLD, 14));
+        g.drawString("Score: " + score, 10, 50);
+        g.drawString("Speed: " + playerSpeed, 10, 70);
+
         Toolkit.getDefaultToolkit().sync();
+
+        
     }
 
     private void gameOver(Graphics g) {
@@ -413,11 +426,13 @@ public class BossFight extends JPanel {
                     break;
             }
         }
+        
+        final int NUMBER_OF_ALIENS_TO_DESTROY = 10; // Adjust this number as needed
 
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
             timer.stop();
-            message = "Game won!";
+            message = "Boss defeated! Game won!";
         }
 
         // player
@@ -429,6 +444,7 @@ public class BossFight extends JPanel {
                 powerup.act();
                 if (powerup.collidesWith(player)) {
                     powerup.upgrade(player);
+                    playerSpeed = player.getSpeed(); // Update speed if powerup affects speed
                 }
             }
         }
@@ -463,6 +479,8 @@ public class BossFight extends JPanel {
                         enemy.setImage(ii.getImage());
                         enemy.setDying(true);
                         explosions.add(new Explosion(enemyX, enemyY));
+                        score += 10;  // Add score when enemy is hit
+                        System.out.println("Score: " + score);
                         deaths++;
                         shot.die();
                         shotsToRemove.add(shot);
@@ -574,7 +592,7 @@ public class BossFight extends JPanel {
 
         @Override
         public void keyPressed(KeyEvent e) {
-            System.out.println("Scene2.keyPressed: " + e.getKeyCode());
+            System.out.println("BossFight.keyPressed: " + e.getKeyCode());
 
             player.keyPressed(e);
 

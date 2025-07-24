@@ -100,7 +100,7 @@ public class TitleScene extends JPanel {
         }
 
         g.setFont(g.getFont().deriveFont(22f));
-        String text = "Press SPACE to Start Scene 1 or ENTER for Boss Fight";
+        String text = "Press SPACE to Start";
         int stringWidth = g.getFontMetrics().stringWidth(text);
         int x = (d.width - stringWidth) / 2;
         // int stringHeight = g.getFontMetrics().getAscent();
@@ -149,13 +149,13 @@ public class TitleScene extends JPanel {
             System.out.println("Title.keyPressed: " + e.getKeyCode());
             int key = e.getKeyCode();
             if (key == KeyEvent.VK_SPACE) {
-                // Load the next scene
-                game.loadScene2();
+                game.loadscene1();
             }
 
-            if (key == KeyEvent.VK_ENTER){
-                game.loadScene1();
-            }
+            // Boss Fight trigger (used for testing)
+            // if (key == KeyEvent.VK_ENTER){
+            //     game.bossfight();
+            // }
 
         }
     }
