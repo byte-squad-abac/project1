@@ -14,7 +14,6 @@ public class Game extends JFrame  {
     public Game() {
         titleScene = new TitleScene(this);
         scene1 = new Scene1(this);
-        bossFight = new BossFight(this);
         initUI();
         loadTitle();
         //loadScene2();
@@ -40,7 +39,8 @@ public class Game extends JFrame  {
         repaint();
     }
 
-    public void loadScene1() {
+    public void bossfight() {
+        bossFight = new BossFight(this, scene1.score);
         getContentPane().removeAll();
         add(bossFight);
         titleScene.stop();
@@ -49,7 +49,7 @@ public class Game extends JFrame  {
         repaint();
     }
 
-    public void loadScene2() {
+    public void loadscene1() {
         getContentPane().removeAll();
         add(scene1);
         titleScene.stop();

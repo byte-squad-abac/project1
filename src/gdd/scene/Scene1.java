@@ -43,7 +43,7 @@ public class Scene1 extends JPanel {
     private Player player;
     // private Shot shot;
 
-    private int score = 0;
+    public int score = 0;
     private int playerSpeed = 5;
 
     final int BLOCKHEIGHT = 50;
@@ -62,6 +62,8 @@ public class Scene1 extends JPanel {
 
     private Timer timer;
     private final Game game;
+
+    private boolean bossFightStarted = false;
 
     private int currentRow = -1;
     // TODO load this map from a file
@@ -138,6 +140,15 @@ public class Scene1 extends JPanel {
         spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
         spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
 
+        
+        spawnMap.put(600, new SpawnDetails("Alien1", 200, 0));
+        spawnMap.put(601, new SpawnDetails("Alien1", 250, 0));
+        spawnMap.put(602, new SpawnDetails("Alien1", 300, 0));
+        spawnMap.put(603, new SpawnDetails("Alien1", 450, 0));
+
+        
+        spawnMap.put(700, new SpawnDetails("Alien1", 100, 0));
+        spawnMap.put(701, new SpawnDetails("Alien1", 550, 0));
         
     }
 
@@ -373,9 +384,9 @@ public class Scene1 extends JPanel {
         }
 
         g.setColor(Color.white);
-g.setFont(new Font("Arial", Font.BOLD, 14));
-g.drawString("Score: " + score, 10, 50);
-g.drawString("Speed: " + playerSpeed, 10, 70);
+        g.setFont(new Font("Arial", Font.BOLD, 14));
+        g.drawString("Score: " + score, 10, 50);
+        g.drawString("Speed: " + playerSpeed, 10, 70);
 
 
         Toolkit.getDefaultToolkit().sync();
@@ -399,6 +410,16 @@ g.drawString("Speed: " + playerSpeed, 10, 70);
         g.setFont(small);
         g.drawString(message, (BOARD_WIDTH - fontMetrics.stringWidth(message)) / 2,
                 BOARD_WIDTH / 2);
+
+
+        // Transition to boss fight
+        if (message.equals("Stage 1 Game won! Going to Boss Fight ...") && !bossFightStarted) {
+            bossFightStarted = true;
+            new Timer(3000, e -> {
+                ((Timer) e.getSource()).stop();
+                game.bossfight();
+            }).start();
+    }
     }
 
     private void update() {
@@ -429,11 +450,13 @@ g.drawString("Speed: " + playerSpeed, 10, 70);
                     break;
             }
         }
-        final int NUMBER_OF_ALIENS_TO_DESTROY = 10; // Adjust this number as needed
+        final int NUMBER_OF_ALIENS_TO_DESTROY = 16; // Adjust this number as needed
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
             timer.stop();
-            message = "Game won!";
+            message = "Stage 1 Game won! Going to Boss Fight ...";
+            
+            // game.bossfight();
         }
 
         // player
@@ -594,7 +617,7 @@ g.drawString("Speed: " + playerSpeed, 10, 70);
 
         @Override
         public void keyPressed(KeyEvent e) {
-            System.out.println("Scene2.keyPressed: " + e.getKeyCode());
+            System.out.println("Scene1.keyPressed: " + e.getKeyCode());
 
             player.keyPressed(e);
 
