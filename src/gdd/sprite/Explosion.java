@@ -25,8 +25,12 @@ public class Explosion extends Sprite {
         setImage(scaledImage);
     }
 
-    public void act(int direction) {
+    @Override
+    public void act() {
+        // Explosions don't move or animate
+    }
 
+    public void act(int direction) {
         // this.x += direction;
     }
 

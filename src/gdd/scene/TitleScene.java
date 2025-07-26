@@ -171,13 +171,8 @@ public class TitleScene extends JPanel {
             System.out.println("Title.keyPressed: " + e.getKeyCode());
             int key = e.getKeyCode();
             if (key == KeyEvent.VK_SPACE) {
-                game.loadscene1();
+                game.loadLevelSelect();
             }
-
-            // Boss Fight trigger (used for testing)
-            // if (key == KeyEvent.VK_ENTER){
-            //     game.bossfight();
-            // }
 
         }
     }
