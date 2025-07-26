@@ -46,6 +46,7 @@ public class BossFight extends JPanel {
 
     public int score;
     private int playerSpeed = 5; // Player speed is reset to 5 for boss level
+    // private int shotType = 1;
 
     final int BLOCKHEIGHT = 50;
     final int BLOCKWIDTH = 50;

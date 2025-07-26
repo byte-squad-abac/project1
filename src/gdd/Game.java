@@ -1,4 +1,4 @@
-package gdd;
+   package gdd;
 
 import gdd.scene.BossFight;
 import gdd.scene.Scene1;

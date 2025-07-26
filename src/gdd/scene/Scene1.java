@@ -7,6 +7,8 @@ import gdd.SpawnDetails;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
+import gdd.sprite.Alien2;
+import gdd.sprite.Bomb;
 import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
@@ -22,6 +24,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javax.swing.ImageIcon;
@@ -31,8 +34,10 @@ import javax.swing.Timer;
 
 
 
+
 public class Scene1 extends JPanel {
 
+    private final List<Bomb> enemyBombs = new ArrayList<>();
 
     
     private int frame = 0;
@@ -121,36 +126,65 @@ public class Scene1 extends JPanel {
 
     private void loadSpawnDetails() {
         // TODO load this from a file
-        spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
-        spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
+        // spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
+        // spawnMap.put(200, new SpawnDetails("Alien2", 200, 0));
+        // spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
 
-        spawnMap.put(350, new SpawnDetails("PowerUp-SpeedUp", 120, 0));
+        // spawnMap.put(350, new SpawnDetails("PowerUp-SpeedUp", 120, 0));
 
-        spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
-        spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
-        spawnMap.put(402, new SpawnDetails("Alien1", 500, 0));
-        spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
-
-        
-        spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
-        
-        spawnMap.put(470, new SpawnDetails("PowerUp-SpeedUp", 320, 0));
-
-        spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
-        spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
-        spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
+        // spawnMap.put(400, new SpawnDetails("Alien2", 400, 0));
+        // spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
+        // spawnMap.put(402, new SpawnDetails("Alien2", 500, 0));
+        // spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
 
         
-        spawnMap.put(600, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(601, new SpawnDetails("Alien1", 250, 0));
-        spawnMap.put(602, new SpawnDetails("Alien1", 300, 0));
-        spawnMap.put(603, new SpawnDetails("Alien1", 450, 0));
+        // spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
+        
+        // spawnMap.put(470, new SpawnDetails("PowerUp-SpeedUp", 320, 0));
+
+        // spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
+        // spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
+        // spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
+        // spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
 
         
-        spawnMap.put(700, new SpawnDetails("Alien1", 100, 0));
-        spawnMap.put(701, new SpawnDetails("Alien1", 550, 0));
+        // spawnMap.put(600, new SpawnDetails("Alien1", 200, 0));
+        // spawnMap.put(601, new SpawnDetails("Alien1", 250, 0));
+        // spawnMap.put(602, new SpawnDetails("Alien1", 300, 0));
+        // spawnMap.put(603, new SpawnDetails("Alien1", 450, 0));
+
+        
+        // spawnMap.put(700, new SpawnDetails("Alien2", 100, 0));
+        // spawnMap.put(701, new SpawnDetails("Alien2", 550, 0));
+        spawnMap.put(50,  new SpawnDetails("PowerUp-SpeedUp", 200, 0));  // Early boost
+
+        // Wave 1: light Alien1
+        spawnMap.put(150, new SpawnDetails("Alien1",            550, 0));
+        spawnMap.put(200, new SpawnDetails("Alien1",            300, 0));
+
+        // Wave 2: introduce Alien2
+        spawnMap.put(250, new SpawnDetails("Alien2",            250, 0));
+        spawnMap.put(300, new SpawnDetails("Alien1",            100, 0));
+        spawnMap.put(330, new SpawnDetails("PowerUp-SpeedUp",  350, 0));
+
+        // Wave 3: mixed pressure
+        spawnMap.put(380, new SpawnDetails("Alien1",            200, 0));
+        spawnMap.put(410, new SpawnDetails("Alien2",            400, 0));
+        spawnMap.put(440, new SpawnDetails("Alien1",             50, 0));
+        spawnMap.put(470, new SpawnDetails("Alien2",            550, 0));
+        spawnMap.put(500, new SpawnDetails("PowerUp-SpeedUp",  280, 0));
+
+        // Wave 4: crescendo
+        spawnMap.put(550, new SpawnDetails("Alien2",            150, 0));
+        spawnMap.put(580, new SpawnDetails("Alien1",            350, 0));
+        spawnMap.put(610, new SpawnDetails("Alien2",            300, 0));
+        spawnMap.put(640, new SpawnDetails("Alien1",            200, 0));
+        spawnMap.put(670, new SpawnDetails("Alien2",            500, 0));
+
+        // Final push
+        spawnMap.put(700, new SpawnDetails("Alien1",            250, 0));
+        spawnMap.put(730, new SpawnDetails("Alien2",            100, 0));
+
         
     }
 
@@ -318,13 +352,12 @@ public class Scene1 extends JPanel {
     }
 
     private void drawBombing(Graphics g) {
+        for (Bomb bomb : enemyBombs) {
+            if (!bomb.isDestroyed()) {
+                g.drawImage(bomb.getImage(), bomb.getX(), bomb.getY(), this);
+            }
+        }
 
-        // for (Enemy e : enemies) {
-        //     Enemy.Bomb b = e.getBomb();
-        //     if (!b.isDestroyed()) {
-        //         g.drawImage(b.getImage(), b.getX(), b.getY(), this);
-        //     }
-        // }
     }
 
     private void drawExplosions(Graphics g) {
@@ -348,7 +381,7 @@ public class Scene1 extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
         doDrawing(g);
     }
 
@@ -375,6 +408,7 @@ public class Scene1 extends JPanel {
             drawAliens(g);
             drawPlayer(g);
             drawShot(g);
+            drawBombing(g);
 
         } else {
 
@@ -443,8 +477,8 @@ public class Scene1 extends JPanel {
                     break;
                 // Add more cases for different enemy types if needed
                 case "Alien2":
-                    // Enemy enemy2 = new Alien2(sd.x, sd.y);
-                    // enemies.add(enemy2);
+                    Enemy enemy2 = new Alien2(sd.x, sd.y);
+                    enemies.add(enemy2);
                     break;
                 case "PowerUp-SpeedUp":
                     // Handle speed up item spawn
@@ -565,46 +599,58 @@ public class Scene1 extends JPanel {
                 enemy.act(direction);
             }
         }
+
+        
+
         // bombs - collision detection
         // Bomb is with enemy, so it loops over enemies
-        /*
+
         for (Enemy enemy : enemies) {
+            if (!enemy.isVisible()) continue;
 
-            int chance = randomizer.nextInt(15);
-            Enemy.Bomb bomb = enemy.getBomb();
-
-            if (chance == CHANCE && enemy.isVisible() && bomb.isDestroyed()) {
-
+            int chance = randomizer.nextInt(120);
+            if (chance == CHANCE) {
+                Bomb bomb = new Bomb(enemy.getX(), enemy.getY());
                 bomb.setDestroyed(false);
-                bomb.setX(enemy.getX());
-                bomb.setY(enemy.getY());
+                enemyBombs.add(bomb);
+                System.out.println("Dropping bomb at: " + enemy.getX() + ", " + enemy.getY());
             }
+        }
 
-            int bombX = bomb.getX();
-            int bombY = bomb.getY();
-            int playerX = player.getX();
-            int playerY = player.getY();
+        // Bomb update and collision logic
+        Iterator<Bomb> iterator = enemyBombs.iterator();
+        while (iterator.hasNext()) {
+            Bomb bomb = iterator.next();
 
-            if (player.isVisible() && !bomb.isDestroyed()
-                    && bombX >= (playerX)
-                    && bombX <= (playerX + PLAYER_WIDTH)
-                    && bombY >= (playerY)
-                    && bombY <= (playerY + PLAYER_HEIGHT)) {
+            if (bomb.isDestroyed()) continue;
 
-                var ii = new ImageIcon(IMG_EXPLOSION);
-                player.setImage(ii.getImage());
-                player.setDying(true);
-                bomb.setDestroyed(true);
-            }
+            System.out.println("Updating bomb at: " + bomb.getX() + ", " + bomb.getY());
 
-            if (!bomb.isDestroyed()) {
-                bomb.setY(bomb.getY() + 1);
-                if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
+
+            bomb.setY(bomb.getY() + 3);
+
+            // Collision with player
+            if (player.isVisible()) {
+                int bombX = bomb.getX();
+                int bombY = bomb.getY();
+                int playerX = player.getX();
+                int playerY = player.getY();
+
+                if (bombX >= playerX && bombX <= (playerX + PLAYER_WIDTH)
+                && bombY >= playerY && bombY <= (playerY + PLAYER_HEIGHT)) {
+                    player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                    player.setDying(true);
                     bomb.setDestroyed(true);
                 }
             }
+
+            // Hit the ground
+            if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
+                bomb.setDestroyed(true);
+            }
         }
-         */
+
+ 
     }
 
     private void doGameCycle() {
