@@ -117,7 +117,7 @@ public class TitleScene extends JPanel {
         // Draw Team Name
     
         String teamLine1 = "Team Name: Just2D";
-        String teamLine2 = "Team Members: Lut lat Aung, Wai Yan Paing, Lu Phone Maw";
+        String teamLine2 = "Team Members: Lut Lat Aung, Wai Yan Paing, Lu Phone Maw";
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setFont(g2d.getFont().deriveFont(20f));
