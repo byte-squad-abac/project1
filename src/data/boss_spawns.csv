@@ -1,0 +1,12 @@
+frame,type,x,y
+60,Boss,300,50
+100,PowerUp-SpeedUp,100,0
+300,PowerUp-MultiShot,400,0
+500,PowerUp-SpeedUp,200,0
+700,PowerUp-MultiShot,500,0
+900,PowerUp-SpeedUp,150,0
+1100,PowerUp-MultiShot,350,0
+1300,PowerUp-SpeedUp,450,0
+1500,PowerUp-MultiShot,250,0
+1700,PowerUp-SpeedUp,400,0
+1900,PowerUp-MultiShot,300,0

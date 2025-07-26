@@ -12,6 +12,11 @@ abstract public class Sprite {
     protected int x;
     protected int y;
     protected int dx;
+    
+    // Animation properties
+    protected int animationFrame = 0;
+    protected int animationSpeed = 8; // Change frame every 8 game frames
+    protected boolean animated = false;
 
     public Sprite() {
         visible = true;
@@ -72,6 +77,10 @@ abstract public class Sprite {
     public int getX() {
         return x;
     }
+    
+    public int getDx() {
+        return dx;
+    }
 
     public void setDying(boolean dying) {
         this.dying = dying;
@@ -79,5 +88,24 @@ abstract public class Sprite {
 
     public boolean isDying() {
         return this.dying;
+    }
+    
+    // Animation methods
+    public void updateAnimation() {
+        if (animated) {
+            animationFrame++;
+        }
+    }
+    
+    public int getAnimationFrame() {
+        return (animationFrame / animationSpeed) % 2; // Simple 2-frame animation
+    }
+    
+    public void setAnimated(boolean animated) {
+        this.animated = animated;
+    }
+    
+    public boolean isAnimated() {
+        return animated;
     }
 }

@@ -28,9 +28,14 @@ public class Enemy extends Sprite {
         setImage(scaledImage);
     }
 
-    public void act(int direction) {
+    @Override
+    public void act() {
+        updateAnimation();
+    }
 
+    public void act(int direction) {
         this.x += direction;
+        updateAnimation();
     }
     public Bomb dropBomb() {
         Bomb bomb = new Bomb(this.x, this.y);
