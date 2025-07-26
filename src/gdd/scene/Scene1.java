@@ -4,6 +4,7 @@ import gdd.AudioPlayer;
 import gdd.Game;
 import static gdd.Global.*;
 import gdd.SpawnDetails;
+import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
@@ -50,8 +51,10 @@ public class Scene1 extends JPanel {
 
     public int score = 0; // Score for the player, to be passed to BossFight
     private int playerSpeed = 5; // Player speed, can be modified by power-ups
-    private int shotType = 1; // 1 = single, 2 = double, 3 = triple, etc.
 
+    //private int shotType = player.getShotType(); // 1 = single, 2 = double, 3 = triple, etc.
+    
+    // shotType is declared in Player.java
 
     final int BLOCKHEIGHT = 50;
     final int BLOCKWIDTH = 50;
@@ -126,9 +129,11 @@ public class Scene1 extends JPanel {
 
     private void loadSpawnDetails() {
         // TODO load this from a file
-        // spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
-        // spawnMap.put(200, new SpawnDetails("Alien2", 200, 0));
-        // spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
+        spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
+        spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
+        spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
+        
+        spawnMap.put(320, new SpawnDetails("PowerUp-MultiShot", 300, 0));
 
         // spawnMap.put(350, new SpawnDetails("PowerUp-SpeedUp", 120, 0));
 
@@ -137,8 +142,9 @@ public class Scene1 extends JPanel {
         // spawnMap.put(402, new SpawnDetails("Alien2", 500, 0));
         // spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
 
-        
-        // spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
+        spawnMap.put(420, new SpawnDetails("PowerUp-MultiShot", 300, 0));
+
+        spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
         
         // spawnMap.put(470, new SpawnDetails("PowerUp-SpeedUp", 320, 0));
 
@@ -423,7 +429,7 @@ public class Scene1 extends JPanel {
         g.setFont(new Font("Arial", Font.BOLD, 14));
         g.drawString("Score: " + score, 10, 50);
         g.drawString("Speed: " + playerSpeed, 10, 70);
-        g.drawString("Shot Type: " + shotType, 10, 90);
+        g.drawString("Shot Type: " + player.getShotType(), 10, 90);
 
 
 
@@ -485,6 +491,10 @@ public class Scene1 extends JPanel {
                     PowerUp speedUp = new SpeedUp(sd.x, sd.y);
                     powerups.add(speedUp);
                     break;
+                case "PowerUp-MultiShot":
+                    PowerUp multiShot = new MultiShot(sd.x, sd.y);
+                    powerups.add(multiShot);
+                    break;
                 default:
                     System.out.println("Unknown enemy type: " + sd.type);
                     break;
@@ -509,7 +519,7 @@ public class Scene1 extends JPanel {
                 if (powerup.collidesWith(player)) {
                     powerup.upgrade(player);
                     playerSpeed = player.getSpeed(); // Update speed if powerup affects speed
-                    shotType = Math.min(shotType + 1, 3); // Testing shotType with power-ups for now. Later shot upgrade sprint will be implemented
+                    // shotType = Math.min(shotType + 1, 3); // Testing shotType with power-ups for now. Later shot upgrade sprint will be implemented
 
                 }
             }
@@ -703,14 +713,14 @@ public class Scene1 extends JPanel {
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
                 if (shots.size() < 4) {
-                    if (shotType == 1) {
+                    if (player.getShotType() == 1) {
                         // One straight shot
                         shots.add(new Shot(x, y, 0, -20));
-                    } else if (shotType == 2) {
+                    } else if (player.getShotType() == 2) {
                         // Two diagonal shots
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
-                    } else if (shotType >= 3) {
+                    } else if (player.getShotType() >= 3) {
                         // Two diagonals + one center
                         shots.add(new Shot(x, y, 0, -20));       // center
                         shots.add(new Shot(x - 10, y, -5, -20)); // left

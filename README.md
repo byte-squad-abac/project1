@@ -44,12 +44,12 @@
 9. Enemy bombs must be in a separate list, part of `Enemy`  ☑️
 10. Power-Ups:
     - Speed up × 4 ☑️
-    - Multi-shot × 4
-    - *(Optional)* Weapon upgrade (e.g. 3-way shots)  
+    - Multi-shot × 4 ☑️
+    - *(Optional)* Weapon upgrade (e.g. 3-way shots) 
 11. Dashboard must show:
     - Score ☑️
     - Speed ☑️
-    - Shots upgrade
+    - Shots upgrade ☑️
 
 ---
 
