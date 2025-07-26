@@ -4,6 +4,7 @@ import gdd.AudioPlayer;
 import gdd.Game;
 import static gdd.Global.*;
 import gdd.SpawnDetails;
+import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
@@ -44,7 +45,7 @@ public class BossFight extends JPanel {
     // private Shot shot;
 
 
-    public int score;
+    public int score; // Score is passed from Scene1
     private int playerSpeed = 5; // Player speed is reset to 5 for boss level
 
     final int BLOCKHEIGHT = 50;
@@ -110,6 +111,8 @@ public class BossFight extends JPanel {
     private void initAudio() {
         try {
             String filePath = "src/audio/scene1.wav";
+            // need boss fight music. Add later
+
             audioPlayer = new AudioPlayer(filePath);
             audioPlayer.play();
         } catch (Exception e) {
@@ -122,6 +125,10 @@ public class BossFight extends JPanel {
         spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
         spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
         spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
+
+
+        
+        spawnMap.put(350, new SpawnDetails("PowerUp-MultiShot", 300, 0));
 
         spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
         spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
@@ -373,6 +380,7 @@ public class BossFight extends JPanel {
         g.setFont(new Font("Arial", Font.BOLD, 14));
         g.drawString("Score: " + score, 10, 50);
         g.drawString("Speed: " + playerSpeed, 10, 70);
+        g.drawString("Shot Type: " + player.getShotType(), 10, 90);
 
         Toolkit.getDefaultToolkit().sync();
 
@@ -396,6 +404,8 @@ public class BossFight extends JPanel {
         g.setFont(small);
         g.drawString(message, (BOARD_WIDTH - fontMetrics.stringWidth(message)) / 2,
                 BOARD_WIDTH / 2);
+
+        // Show Game Won or Over message after boss is defeated or not       
     }
 
     private void update() {
@@ -420,6 +430,10 @@ public class BossFight extends JPanel {
                     // Handle speed up item spawn
                     PowerUp speedUp = new SpeedUp(sd.x, sd.y);
                     powerups.add(speedUp);
+                    break;
+                case "PowerUp-MultiShot":
+                    PowerUp multiShot = new MultiShot(sd.x, sd.y);
+                    powerups.add(multiShot);
                     break;
                 default:
                     System.out.println("Unknown enemy type: " + sd.type);
@@ -487,46 +501,51 @@ public class BossFight extends JPanel {
                     }
                 }
 
-                int y = shot.getY();
+                //int y = shot.getY();
                 // y -= 4;
-                y -= 20;
+                //y -= 20;
 
-                if (y < 0) {
-                    shot.die();
+                // if (y < 0) {
+                //     shot.die();
+                //     shotsToRemove.add(shot);
+                // } else {
+                //     shot.setY(y);
+                // }
+                shot.act();
+
+                if (!shot.isVisible()) {
                     shotsToRemove.add(shot);
-                } else {
-                    shot.setY(y);
                 }
             }
         }
         shots.removeAll(shotsToRemove);
 
         // enemies
-        // for (Enemy enemy : enemies) {
-        //     int x = enemy.getX();
-        //     if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
-        //         direction = -1;
-        //         for (Enemy e2 : enemies) {
-        //             e2.setY(e2.getY() + GO_DOWN);
-        //         }
-        //     }
-        //     if (x <= BORDER_LEFT && direction != 1) {
-        //         direction = 1;
-        //         for (Enemy e : enemies) {
-        //             e.setY(e.getY() + GO_DOWN);
-        //         }
-        //     }
-        // }
-        // for (Enemy enemy : enemies) {
-        //     if (enemy.isVisible()) {
-        //         int y = enemy.getY();
-        //         if (y > GROUND - ALIEN_HEIGHT) {
-        //             inGame = false;
-        //             message = "Invasion!";
-        //         }
-        //         enemy.act(direction);
-        //     }
-        // }
+        for (Enemy enemy : enemies) {
+            int x = enemy.getX();
+            if (x >= BOARD_WIDTH - BORDER_RIGHT && direction != -1) {
+                direction = -1;
+                for (Enemy e2 : enemies) {
+                    e2.setY(e2.getY() + GO_DOWN);
+                }
+            }
+            if (x <= BORDER_LEFT && direction != 1) {
+                direction = 1;
+                for (Enemy e : enemies) {
+                    e.setY(e.getY() + GO_DOWN);
+                }
+            }
+        }
+        for (Enemy enemy : enemies) {
+            if (enemy.isVisible()) {
+                int y = enemy.getY();
+                if (y > GROUND - ALIEN_HEIGHT) {
+                    inGame = false;
+                    message = "Invasion!";
+                }
+                enemy.act(direction);
+            }
+        }
         // bombs - collision detection
         // Bomb is with enemy, so it loops over enemies
         /*
@@ -601,14 +620,40 @@ public class BossFight extends JPanel {
 
             int key = e.getKeyCode();
 
+            // Shooting Only one
+
+            // if (key == KeyEvent.VK_SPACE && inGame) {
+            //     System.out.println("Shots: " + shots.size());
+            //     if (shots.size() < 4) {
+            //         for (int i = 0; i < shotType; i++) {
+            //             // Spread out shots horizontally for visual clarity
+            //             int offsetX = (i - (shotType - 1) / 2) * 10;
+            //             shots.add(new Shot(x + offsetX, y));
+            //         }
+            //     }
+            // }
+
+            // Shooting with shotType
+            
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
                 if (shots.size() < 4) {
-                    // Create a new shot and add it to the list
-                    Shot shot = new Shot(x, y);
-                    shots.add(shot);
+                    if (player.getShotType() == 1) {
+                        // One straight shot
+                        shots.add(new Shot(x, y, 0, -20));
+                    } else if (player.getShotType() == 2) {
+                        // Two diagonal shots
+                        shots.add(new Shot(x - 10, y, -5, -20)); // left
+                        shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    } else if (player.getShotType() >= 3) {
+                        // Two diagonals + one center
+                        shots.add(new Shot(x, y, 0, -20));       // center
+                        shots.add(new Shot(x - 10, y, -5, -20)); // left
+                        shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    }
                 }
             }
+            
 
         }
     }

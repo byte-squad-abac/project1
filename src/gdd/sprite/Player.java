@@ -12,6 +12,9 @@ public class Player extends Sprite {
     private int width;
     private int currentSpeed = 2;
 
+    private int shotType = 1; // default: 1 = normal, 2 = double shot, 3 = triple shot
+
+
     private Rectangle bounds = new Rectangle(175,135,17,32);
 
     public Player() {
@@ -30,6 +33,15 @@ public class Player extends Sprite {
         setX(START_X);
         setY(START_Y);
     }
+
+    public int getShotType() {
+        return shotType;
+    }
+
+    public void setShotType(int shotType) {
+        this.shotType = shotType;
+    }
+
 
     public int getSpeed() {
         return currentSpeed;
