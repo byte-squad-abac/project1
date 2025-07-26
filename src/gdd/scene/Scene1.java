@@ -46,7 +46,9 @@ public class Scene1 extends JPanel {
 
     public int score = 0; // Score for the player, to be passed to BossFight
     private int playerSpeed = 5; // Player speed, can be modified by power-ups
+
     //private int shotType = player.getShotType(); // 1 = single, 2 = double, 3 = triple, etc.
+    
     // shotType is declared in Player.java
 
     final int BLOCKHEIGHT = 50;
