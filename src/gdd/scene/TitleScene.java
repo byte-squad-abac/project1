@@ -5,7 +5,9 @@ import gdd.Game;
 import static gdd.Global.*;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -15,6 +17,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+
 
 public class TitleScene extends JPanel {
 
@@ -112,10 +115,29 @@ public class TitleScene extends JPanel {
         g.drawString("Game by Chayapol", 10, 650);
 
         // Draw Team Name
-        String teamName = "Team Name: Byte Squad";
-        g.setColor(Color.green);
-        g.setFont(g.getFont().deriveFont(20f));
-        g.drawString(teamName, 10, 20);
+    
+        String teamLine1 = "Team Name: Just2D";
+        String teamLine2 = "Team Members: Lut Lat Aung, Wai Yan Paing, Lu Phone Maw";
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(g2d.getFont().deriveFont(20f));
+        FontMetrics fm = g2d.getFontMetrics();
+
+        int padding = 10;
+        int textWidth = Math.max(fm.stringWidth(teamLine1), fm.stringWidth(teamLine2));
+        int textHeight = fm.getHeight() * 2;
+
+        int boxX = 5;
+        int boxY = 5;
+
+        // Draw background box (semi-transparent black)
+        g2d.setColor(new Color(0, 0, 0, 150));
+        g2d.fillRect(boxX, boxY, textWidth + padding * 2, textHeight + padding);
+
+        // Draw text on top
+        g2d.setColor(Color.green);
+        g2d.drawString(teamLine1, boxX + padding, boxY + fm.getAscent() + 2);
+        g2d.drawString(teamLine2, boxX + padding, boxY + fm.getAscent() + fm.getHeight() + 2);
 
         Toolkit.getDefaultToolkit().sync();
     }

@@ -3,11 +3,13 @@ package gdd.sprite;
 import static gdd.Global.*;
 import javax.swing.ImageIcon;
 
-public class Alien1 extends Enemy {
+public class Alien2 extends Enemy {
 
     private Bomb bomb;
+    private int frameCount = 0;
+    private int horizontalDirection = 1;
 
-    public Alien1(int x, int y) {
+    public Alien2(int x, int y) {
         super(x, y);
         initEnemy(x, y);
     }
@@ -19,7 +21,7 @@ public class Alien1 extends Enemy {
 
         bomb = new Bomb(x, y);
 
-        var ii = new ImageIcon(IMG_ENEMY);
+        var ii = new ImageIcon(IMG_ENEMY_1);
 
         // Scale the image to use the global scaling factor
         var scaledImage = ii.getImage().getScaledInstance(ii.getIconWidth() * SCALE_FACTOR,
@@ -30,6 +32,15 @@ public class Alien1 extends Enemy {
 
     public void act(int direction) {
         this.y ++;
+
+        // Horizontal oscillation: 2-frame steps left/right
+        frameCount++;
+        if (frameCount % 2 == 0) {
+            this.x += horizontalDirection;
+        }
+        if (frameCount % 70 == 0) {
+            horizontalDirection = -horizontalDirection;
+        }
     }
 
     public Bomb getBomb() {
@@ -37,5 +48,5 @@ public class Alien1 extends Enemy {
         return bomb;
     }
 
-    
+ 
 }

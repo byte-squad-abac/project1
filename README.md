@@ -39,9 +39,9 @@
 5. Each stage plays ~5 minutes (load array from external CSV)  
    - Ref: [Reading a CSV File into an Array | Baeldung](https://www.baeldung.com/java-csv-file-array)  
 6. Last stage has a boss fight  
-7. At least **two** enemy types  
+7. At least **two** enemy types  ☑️
 8. All sprites must be animated (drawing or clipping)  
-9. Enemy bombs must be in a separate list, part of `Enemy`  
+9. Enemy bombs must be in a separate list, part of `Enemy`  ☑️
 10. Power-Ups:
     - Speed up × 4 ☑️
     - Multi-shot × 4 ☑️
