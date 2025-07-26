@@ -101,6 +101,39 @@ abstract public class Sprite {
         return (animationFrame / animationSpeed) % 2; // Simple 2-frame animation
     }
     
+    // Get clipping bounds for current animation frame
+    // Uses proper clipping technique with single-frame sprites
+    public int[] getFrameClip() {
+        if (image == null) {
+            return new int[]{0, 0, 0, 0};
+        }
+        
+        if (!animated) {
+            // No animation - use full image with clipping technique
+            return new int[]{0, 0, image.getWidth(null), image.getHeight(null)};
+        }
+        
+        // For animated single-frame sprites, create subtle animation effect
+        // by clipping slightly different regions to create "breathing" effect
+        int fullWidth = image.getWidth(null);
+        int fullHeight = image.getHeight(null);
+        int currentFrame = getAnimationFrame();
+        
+        if (currentFrame == 0) {
+            // Frame 0: Full sprite
+            return new int[]{0, 0, fullWidth, fullHeight};
+        } else {
+            // Frame 1: Slightly smaller clipping for "pulse" effect
+            int shrink = 1;
+            return new int[]{
+                shrink,                    // source X (1 pixel in)
+                shrink,                    // source Y (1 pixel in)
+                fullWidth - (shrink * 2),  // width (2 pixels smaller)
+                fullHeight - (shrink * 2)  // height (2 pixels smaller)
+            };
+        }
+    }
+    
     public void setAnimated(boolean animated) {
         this.animated = animated;
     }

@@ -262,18 +262,15 @@ public class Scene1 extends JPanel {
         for (Enemy enemy : enemies) {
 
             if (enemy.isVisible()) {
-                // Apply animation effects if sprite is animated
+                // Apply proper sprite clipping animation
                 if (enemy.isAnimated()) {
-                    // Simple pulsing effect - slightly vary size based on animation frame
-                    int animFrame = enemy.getAnimationFrame();
-                    int offsetX = (animFrame == 0) ? 0 : 1;
-                    int offsetY = (animFrame == 0) ? 0 : 1;
-                    
-                    g.drawImage(enemy.getImage(), 
-                               enemy.getX() - offsetX, 
-                               enemy.getY() - offsetY, 
-                               enemy.getImage().getWidth(null) + (offsetX * 2),
-                               enemy.getImage().getHeight(null) + (offsetY * 2),
+                    // Use sprite clipping for animation frames
+                    int[] clip = enemy.getFrameClip();
+                    g.drawImage(enemy.getImage(),
+                               enemy.getX(), enemy.getY(),                           // destination
+                               enemy.getX() + clip[2], enemy.getY() + clip[3],       // destination bounds
+                               clip[0], clip[1],                                     // source start
+                               clip[0] + clip[2], clip[1] + clip[3],                 // source bounds
                                this);
                 } else {
                     g.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this);
@@ -305,15 +302,15 @@ public class Scene1 extends JPanel {
     private void drawPlayer(Graphics g) {
 
         if (player.isVisible()) {
-            // Apply subtle animation for player when moving
-            if (player.isAnimated() && Math.abs(player.getDx()) > 0) {
-                // Slight tilt animation when moving
-                int animFrame = player.getAnimationFrame();
-                int tilt = (animFrame == 0) ? 0 : 1;
-                
-                g.drawImage(player.getImage(), 
-                           player.getX(), 
-                           player.getY() + tilt, 
+            // Apply proper sprite clipping animation for player
+            if (player.isAnimated()) {
+                // Use sprite clipping for animation frames
+                int[] clip = player.getFrameClip();
+                g.drawImage(player.getImage(),
+                           player.getX(), player.getY(),                           // destination
+                           player.getX() + clip[2], player.getY() + clip[3],       // destination bounds
+                           clip[0], clip[1],                                       // source start
+                           clip[0] + clip[2], clip[1] + clip[3],                   // source bounds
                            this);
             } else {
                 g.drawImage(player.getImage(), player.getX(), player.getY(), this);

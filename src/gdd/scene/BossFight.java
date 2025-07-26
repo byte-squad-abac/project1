@@ -275,36 +275,31 @@ public class BossFight extends JPanel {
                     int animFrame = enemy.getAnimationFrame();
                     if (enemy instanceof Boss) {
                         Boss bossEnemy = (Boss) enemy;
-                        // Boss gets more dramatic pulsing effect
-                        int offsetX = (animFrame == 0) ? 0 : 3;
-                        int offsetY = (animFrame == 0) ? 0 : 3;
                         
                         // Flash red when invincible
                         if (bossEnemy.shouldFlash()) {
-                            // Tint the boss red when flashing
                             g.setColor(Color.RED);
-                            g.fillRect(enemy.getX() - offsetX - 2, 
-                                      enemy.getY() - offsetY - 2, 
-                                      enemy.getImage().getWidth(null) + (offsetX * 2) + 4,
-                                      enemy.getImage().getHeight(null) + (offsetY * 2) + 4);
+                            g.fillRect(enemy.getX() - 2, enemy.getY() - 2, 
+                                      enemy.getImage().getWidth(null) + 4,
+                                      enemy.getImage().getHeight(null) + 4);
                         }
                         
-                        g.drawImage(enemy.getImage(), 
-                                   enemy.getX() - offsetX, 
-                                   enemy.getY() - offsetY, 
-                                   enemy.getImage().getWidth(null) + (offsetX * 2),
-                                   enemy.getImage().getHeight(null) + (offsetY * 2),
+                        // Use sprite clipping for boss animation
+                        int[] clip = enemy.getFrameClip();
+                        g.drawImage(enemy.getImage(),
+                                   enemy.getX(), enemy.getY(),                           // destination
+                                   enemy.getX() + clip[2], enemy.getY() + clip[3],       // destination bounds
+                                   clip[0], clip[1],                                     // source start
+                                   clip[0] + clip[2], clip[1] + clip[3],                 // source bounds
                                    this);
                     } else {
-                        // Regular enemy animation
-                        int offsetX = (animFrame == 0) ? 0 : 1;
-                        int offsetY = (animFrame == 0) ? 0 : 1;
-                        
-                        g.drawImage(enemy.getImage(), 
-                                   enemy.getX() - offsetX, 
-                                   enemy.getY() - offsetY, 
-                                   enemy.getImage().getWidth(null) + (offsetX * 2),
-                                   enemy.getImage().getHeight(null) + (offsetY * 2),
+                        // Regular enemy animation with sprite clipping
+                        int[] clip = enemy.getFrameClip();
+                        g.drawImage(enemy.getImage(),
+                                   enemy.getX(), enemy.getY(),                           // destination
+                                   enemy.getX() + clip[2], enemy.getY() + clip[3],       // destination bounds
+                                   clip[0], clip[1],                                     // source start
+                                   clip[0] + clip[2], clip[1] + clip[3],                 // source bounds
                                    this);
                     }
                 } else {
@@ -342,15 +337,15 @@ public class BossFight extends JPanel {
 
         if (player.isVisible()) {
             if (player.getImage() != null) {
-                // Apply subtle animation for player when moving
-                if (player.isAnimated() && Math.abs(player.getDx()) > 0) {
-                    // Slight tilt animation when moving
-                    int animFrame = player.getAnimationFrame();
-                    int tilt = (animFrame == 0) ? 0 : 1;
-                    
-                    g.drawImage(player.getImage(), 
-                               player.getX(), 
-                               player.getY() + tilt, 
+                // Apply proper sprite clipping animation for player
+                if (player.isAnimated()) {
+                    // Use sprite clipping for animation frames
+                    int[] clip = player.getFrameClip();
+                    g.drawImage(player.getImage(),
+                               player.getX(), player.getY(),                           // destination
+                               player.getX() + clip[2], player.getY() + clip[3],       // destination bounds
+                               clip[0], clip[1],                                       // source start
+                               clip[0] + clip[2], clip[1] + clip[3],                   // source bounds
                                this);
                 } else {
                     g.drawImage(player.getImage(), player.getX(), player.getY(), this);
@@ -637,6 +632,9 @@ public class BossFight extends JPanel {
             // Update game state
             gdd.GameState.getInstance().updateHighScore(score);
         }
+        
+        // Check red zone death EVERY frame (not just when boss takes damage)
+        checkRedZoneDeath();
 
         // player
         player.act();
@@ -876,6 +874,39 @@ public class BossFight extends JPanel {
         bossBombs.removeIf(Bomb::isDestroyed);
     }
     
+    private void checkRedZoneDeath() {
+        if (boss != null && player.isVisible() && !player.isDying()) {
+            // Calculate current arena bounds
+            int healthLost = 20 - boss.getHealth();
+            int shrinkAmount = healthLost * 15; // 15 pixels per health lost
+            
+            int currentArenaWidth = Math.max(BOARD_WIDTH - shrinkAmount, BOARD_WIDTH / 2);
+            int currentArenaLeft = (BOARD_WIDTH - currentArenaWidth) / 2;
+            
+            // Check if arena has shrunk from original size
+            if (currentArenaWidth < BOARD_WIDTH) {
+                // Check if player is in red death zone (with better collision detection)
+                int playerLeft = player.getX();
+                int playerRight = player.getX() + PLAYER_WIDTH;
+                int safeZoneLeft = currentArenaLeft;
+                int safeZoneRight = currentArenaLeft + currentArenaWidth;
+                
+                boolean inRedZone = (playerLeft < safeZoneLeft) || (playerRight > safeZoneRight);
+                
+                if (inRedZone) {
+                    // Player entered red zone - instant death!
+                    System.out.println("PLAYER ENTERED RED DEATH ZONE! Player X: " + player.getX() + 
+                                     ", Arena: " + currentArenaLeft + " to " + (currentArenaLeft + currentArenaWidth));
+                    player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                    player.setDying(true);
+                    
+                    // Extra screen shake for red zone death
+                    shakeTimer = 25;
+                }
+            }
+        }
+    }
+    
     private void updateArenaSize() {
         if (boss != null) {
             // Shrink arena based on boss health (more damage = smaller arena)
@@ -884,27 +915,6 @@ public class BossFight extends JPanel {
             
             arenaWidth = Math.max(BOARD_WIDTH - shrinkAmount, BOARD_WIDTH / 2); // Don't shrink below half
             arenaLeft = (BOARD_WIDTH - arenaWidth) / 2; // Center the arena
-            
-            // Check if player is in red death zone
-            boolean inRedZone = (player.getX() < arenaLeft + 5) || (player.getX() > arenaLeft + arenaWidth - 35);
-            
-            if (inRedZone && !player.isDying() && arenaWidth < BOARD_WIDTH) {
-                // Player entered red zone - instant death!
-                System.out.println("PLAYER ENTERED RED DEATH ZONE! Taking damage!");
-                player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
-                player.setDying(true);
-                
-                // Extra screen shake for red zone death
-                shakeTimer = 25;
-            } else if (!inRedZone) {
-                // Constrain player to arena (push them back to safety)
-                if (player.getX() < arenaLeft + 10) {
-                    player.setX(arenaLeft + 10);
-                }
-                if (player.getX() > arenaLeft + arenaWidth - 40) {
-                    player.setX(arenaLeft + arenaWidth - 40);
-                }
-            }
         }
         
         // bombs - collision detection
