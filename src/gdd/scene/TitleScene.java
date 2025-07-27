@@ -58,6 +58,7 @@ public class TitleScene extends JPanel {
 
             if (audioPlayer != null) {
                 audioPlayer.stop();
+            System.out.println("Stopping Title audio");
             }
         } catch (Exception e) {
             System.err.println("Error closing audio player.");
@@ -74,7 +75,7 @@ public class TitleScene extends JPanel {
         try {
             String filePath = "src/audio/title.wav";
             audioPlayer = new AudioPlayer(filePath);
-
+            System.out.println("Playing Title audio");
             audioPlayer.play();
         } catch (Exception e) {
             System.err.println("Error with playing sound.");

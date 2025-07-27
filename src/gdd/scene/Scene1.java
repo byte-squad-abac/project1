@@ -99,6 +99,8 @@ public class Scene1 extends JPanel {
         try {
             String filePath = "src/audio/scene1.wav";
             audioPlayer = new AudioPlayer(filePath);
+
+            System.out.println("Playing Scene 1 audio");
             audioPlayer.play();
         } catch (Exception e) {
             System.err.println("Error initializing audio player: " + e.getMessage());
@@ -135,6 +137,7 @@ public class Scene1 extends JPanel {
         try {
             if (audioPlayer != null) {
                 audioPlayer.stop();
+            System.out.println("Stopping Scene 1 audio");
             }
         } catch (Exception e) {
             System.err.println("Error closing audio player.");
@@ -753,6 +756,7 @@ public class Scene1 extends JPanel {
                     // Game over screen controls
                     if (key == KeyEvent.VK_R) {
                         // Restart current scene
+                        stop();
                         restartScene();
                     } else if (key == KeyEvent.VK_ESCAPE) {
                         // Return to level select
