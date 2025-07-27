@@ -102,6 +102,7 @@ public class BossFight extends JPanel {
             // need boss fight music. Add later
 
             audioPlayer = new AudioPlayer(filePath);
+            System.out.println("Playing Boss Fight audio");
             audioPlayer.play();
         } catch (Exception e) {
             System.err.println("Error initializing audio player: " + e.getMessage());
@@ -137,11 +138,13 @@ public class BossFight extends JPanel {
         try {
             if (audioPlayer != null) {
                 audioPlayer.stop();
+                System.out.println("Stopping Boss Fight audio");
             }
         } catch (Exception e) {
             System.err.println("Error closing audio player.");
         }
     }
+
     
     public void restartBoss() {
         // Reset game state
@@ -628,6 +631,7 @@ public class BossFight extends JPanel {
             inGame = false;
             timer.stop();
             message = "Boss defeated! Game Complete!";
+            stop();
             
             // Update game state
             gdd.GameState.getInstance().updateHighScore(score);
