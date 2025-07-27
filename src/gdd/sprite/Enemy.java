@@ -28,46 +28,22 @@ public class Enemy extends Sprite {
         setImage(scaledImage);
     }
 
-    public void act(int direction) {
-
-        this.x += direction;
+    @Override
+    public void act() {
+        updateAnimation();
     }
-/* 
-    public Bomb getBomb() {
 
+    public void act(int direction) {
+        this.x += direction;
+        updateAnimation();
+    }
+    public Bomb dropBomb() {
+        Bomb bomb = new Bomb(this.x, this.y);
+        bomb.setDestroyed(false);
         return bomb;
     }
 
-    public class Bomb extends Sprite {
+    
+    
 
-        private boolean destroyed;
-
-        public Bomb(int x, int y) {
-
-            initBomb(x, y);
-        }
-
-        private void initBomb(int x, int y) {
-
-            setDestroyed(true);
-
-            this.x = x;
-            this.y = y;
-
-            var bombImg = "src/images/bomb.png";
-            var ii = new ImageIcon(bombImg);
-            setImage(ii.getImage());
-        }
-
-        public void setDestroyed(boolean destroyed) {
-
-            this.destroyed = destroyed;
-        }
-
-        public boolean isDestroyed() {
-
-            return destroyed;
-        }
-    }
-*/
 }

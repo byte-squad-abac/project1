@@ -8,6 +8,8 @@ import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Alien1;
+import gdd.sprite.Alien2;
+import gdd.sprite.Bomb;
 import gdd.sprite.Enemy;
 import gdd.sprite.Explosion;
 import gdd.sprite.Player;
@@ -23,6 +25,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javax.swing.ImageIcon;
@@ -32,8 +35,10 @@ import javax.swing.Timer;
 
 
 
+
 public class Scene1 extends JPanel {
 
+    private final List<Bomb> enemyBombs = new ArrayList<>();
 
     
     private int frame = 0;
@@ -46,6 +51,9 @@ public class Scene1 extends JPanel {
 
     public int score = 0; // Score for the player, to be passed to BossFight
     private int playerSpeed = 5; // Player speed, can be modified by power-ups
+    private int lives = 3; // Player lives
+    private int killsRequired = 15; // Kills needed to complete stage (reduced for better balance)
+    private int currentKills = 0; // Current kill count
 
     //private int shotType = player.getShotType(); // 1 = single, 2 = double, 3 = triple, etc.
     
@@ -69,36 +77,11 @@ public class Scene1 extends JPanel {
     private final Game game;
 
     private boolean bossFightStarted = false;
+    private boolean sceneStarted = false;
 
     private int currentRow = -1;
-    // TODO load this map from a file
     private int mapOffset = 0;
-    private final int[][] MAP = {
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-    };
+    private int[][] MAP;
 
     private HashMap<Integer, SpawnDetails> spawnMap = new HashMap<>();
     private AudioPlayer audioPlayer;
@@ -107,9 +90,9 @@ public class Scene1 extends JPanel {
 
     public Scene1(Game game) {
         this.game = game;
-        // initBoard();
-        // gameInit();
+        // Load stage data from CSV files
         loadSpawnDetails();
+        MAP = gdd.CSVLoader.loadStageMap("src/data/stage1_map.csv");
     }
 
     private void initAudio() {
@@ -123,41 +106,8 @@ public class Scene1 extends JPanel {
     }
 
     private void loadSpawnDetails() {
-        // TODO load this from a file
-        spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
-        spawnMap.put(200, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(300, new SpawnDetails("Alien1", 300, 0));
-        
-        spawnMap.put(320, new SpawnDetails("PowerUp-MultiShot", 300, 0));
-
-        spawnMap.put(350, new SpawnDetails("PowerUp-SpeedUp", 120, 0));
-
-        spawnMap.put(400, new SpawnDetails("Alien1", 400, 0));
-        spawnMap.put(401, new SpawnDetails("Alien1", 450, 0));
-        spawnMap.put(402, new SpawnDetails("Alien1", 500, 0));
-        spawnMap.put(403, new SpawnDetails("Alien1", 550, 0));
-
-        spawnMap.put(420, new SpawnDetails("PowerUp-MultiShot", 300, 0));
-
-        spawnMap.put(450, new SpawnDetails("PowerUp-SpeedUp", 400, 0));
-        
-        spawnMap.put(470, new SpawnDetails("PowerUp-SpeedUp", 320, 0));
-
-        spawnMap.put(500, new SpawnDetails("Alien1", 100, 0));
-        spawnMap.put(501, new SpawnDetails("Alien1", 150, 0));
-        spawnMap.put(502, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(503, new SpawnDetails("Alien1", 350, 0));
-
-        
-        spawnMap.put(600, new SpawnDetails("Alien1", 200, 0));
-        spawnMap.put(601, new SpawnDetails("Alien1", 250, 0));
-        spawnMap.put(602, new SpawnDetails("Alien1", 300, 0));
-        spawnMap.put(603, new SpawnDetails("Alien1", 450, 0));
-
-        
-        spawnMap.put(700, new SpawnDetails("Alien1", 100, 0));
-        spawnMap.put(701, new SpawnDetails("Alien1", 550, 0));
-        
+        // Load spawn details from CSV file
+        spawnMap = gdd.CSVLoader.loadSpawnMap("src/data/stage1_spawns_balanced.csv");
     }
 
     private void initBoard() {
@@ -172,19 +122,59 @@ public class Scene1 extends JPanel {
 
         timer = new Timer(1000 / 60, new GameCycle());
         timer.start();
+        sceneStarted = true;
 
         gameInit();
         initAudio();
     }
 
     public void stop() {
-        timer.stop();
+        if (timer != null) {
+            timer.stop();
+        }
         try {
             if (audioPlayer != null) {
                 audioPlayer.stop();
             }
         } catch (Exception e) {
             System.err.println("Error closing audio player.");
+        }
+        sceneStarted = false;
+    }
+    
+    public boolean isStarted() {
+        return sceneStarted;
+    }
+    
+    public void restartScene() {
+        // Reset game state
+        inGame = true;
+        deaths = 0;
+        score = 0;
+        frame = 0;
+        bossFightStarted = false;
+        playerSpeed = 5; // Reset player speed
+        lives = 3; // Reset lives
+        currentKills = 0; // Reset kill count
+        
+        // Clear all existing objects
+        if (enemies != null) enemies.clear();
+        if (shots != null) shots.clear();
+        if (powerups != null) powerups.clear();
+        if (explosions != null) explosions.clear();
+        if (enemyBombs != null) enemyBombs.clear();
+        
+        // Reinitialize game objects
+        gameInit();
+        
+        // Ensure player is properly reset
+        if (player != null) {
+            player.reset(); // Reset all player state
+        }
+        
+        // Restart timer if needed
+        if (timer != null && !timer.isRunning()) {
+            timer.start();
         }
     }
 
@@ -272,12 +262,22 @@ public class Scene1 extends JPanel {
         for (Enemy enemy : enemies) {
 
             if (enemy.isVisible()) {
-
-                g.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this);
+                // Apply proper sprite clipping animation
+                if (enemy.isAnimated()) {
+                    // Use sprite clipping for animation frames
+                    int[] clip = enemy.getFrameClip();
+                    g.drawImage(enemy.getImage(),
+                               enemy.getX(), enemy.getY(),                           // destination
+                               enemy.getX() + clip[2], enemy.getY() + clip[3],       // destination bounds
+                               clip[0], clip[1],                                     // source start
+                               clip[0] + clip[2], clip[1] + clip[3],                 // source bounds
+                               this);
+                } else {
+                    g.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this);
+                }
             }
 
             if (enemy.isDying()) {
-
                 enemy.die();
             }
         }
@@ -302,14 +302,39 @@ public class Scene1 extends JPanel {
     private void drawPlayer(Graphics g) {
 
         if (player.isVisible()) {
-
-            g.drawImage(player.getImage(), player.getX(), player.getY(), this);
+            // Apply proper sprite clipping animation for player
+            if (player.isAnimated()) {
+                // Use sprite clipping for animation frames
+                int[] clip = player.getFrameClip();
+                g.drawImage(player.getImage(),
+                           player.getX(), player.getY(),                           // destination
+                           player.getX() + clip[2], player.getY() + clip[3],       // destination bounds
+                           clip[0], clip[1],                                       // source start
+                           clip[0] + clip[2], clip[1] + clip[3],                   // source bounds
+                           this);
+            } else {
+                g.drawImage(player.getImage(), player.getX(), player.getY(), this);
+            }
         }
 
         if (player.isDying()) {
-
-            player.die();
-            inGame = false;
+            lives--;
+            if (lives <= 0) {
+                player.die();
+                inGame = false;
+                message = "Game Over - No Lives Left";
+            } else {
+                // Reset player but continue game
+                player.setDying(false);
+                
+                // CRITICAL: Reset player image back to normal (was set to explosion)
+                player.fullReset(); // This restores the player image and position
+                
+                // Clear enemy bombs near player
+                enemyBombs.removeIf(bomb -> 
+                    Math.abs(bomb.getX() - player.getX()) < 100 && 
+                    Math.abs(bomb.getY() - player.getY()) < 100);
+            }
         }
     }
 
@@ -324,13 +349,12 @@ public class Scene1 extends JPanel {
     }
 
     private void drawBombing(Graphics g) {
+        for (Bomb bomb : enemyBombs) {
+            if (!bomb.isDestroyed()) {
+                g.drawImage(bomb.getImage(), bomb.getX(), bomb.getY(), this);
+            }
+        }
 
-        // for (Enemy e : enemies) {
-        //     Enemy.Bomb b = e.getBomb();
-        //     if (!b.isDestroyed()) {
-        //         g.drawImage(b.getImage(), b.getX(), b.getY(), this);
-        //     }
-        // }
     }
 
     private void drawExplosions(Graphics g) {
@@ -354,7 +378,7 @@ public class Scene1 extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
         doDrawing(g);
     }
 
@@ -366,7 +390,7 @@ public class Scene1 extends JPanel {
         g.setColor(Color.white);
         g.drawString("FRAME: " + frame, 10, 10);
 
-        String Stage = "This is Stage 1: Scene 1";
+        String Stage = "Level 1";
         g.setColor(Color.green);
         // g.setFont(g.getFont().deriveFont(20f));
         g.drawString(Stage, 10, 30);
@@ -381,6 +405,7 @@ public class Scene1 extends JPanel {
             drawAliens(g);
             drawPlayer(g);
             drawShot(g);
+            drawBombing(g);
 
         } else {
 
@@ -394,8 +419,10 @@ public class Scene1 extends JPanel {
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.BOLD, 14));
         g.drawString("Score: " + score, 10, 50);
-        g.drawString("Speed: " + playerSpeed, 10, 70);
-        g.drawString("Shot Type: " + player.getShotType(), 10, 90);
+        g.drawString("Lives: " + lives, 10, 70);
+        g.drawString("Kills: " + currentKills + "/" + killsRequired, 10, 90);
+        g.drawString("Speed: " + playerSpeed, 10, 110);
+        g.drawString("Shot Type: " + player.getShotType(), 10, 130);
 
 
 
@@ -421,15 +448,21 @@ public class Scene1 extends JPanel {
         g.drawString(message, (BOARD_WIDTH - fontMetrics.stringWidth(message)) / 2,
                 BOARD_WIDTH / 2);
 
-
-        // Transition to boss fight
-        if (message.equals("Stage 1 Game won! Going to Boss Fight ...") && !bossFightStarted) {
-            bossFightStarted = true;
-            new Timer(3000, e -> {
-                ((Timer) e.getSource()).stop();
-                game.bossfight();
-            }).start();
-    }
+        // Add retry option for game over (not for victory)
+        if (!message.equals("Stage 1 Complete! Level 2 Unlocked!")) {
+            g.setColor(Color.yellow);
+            g.setFont(new Font("Helvetica", Font.BOLD, 12));
+            String retryText = "Press R to Retry or ESC to Level Select";
+            int retryWidth = g.getFontMetrics().stringWidth(retryText);
+            g.drawString(retryText, (BOARD_WIDTH - retryWidth) / 2, BOARD_WIDTH / 2 + 30);
+        } else {
+            // Victory screen options
+            g.setColor(Color.green);
+            g.setFont(new Font("Helvetica", Font.BOLD, 12));
+            String victoryText = "Press SPACE for Level 2 or ESC for Level Select";
+            int victoryWidth = g.getFontMetrics().stringWidth(victoryText);
+            g.drawString(victoryText, (BOARD_WIDTH - victoryWidth) / 2, BOARD_WIDTH / 2 + 30);
+        }
     }
 
     private void update() {
@@ -449,8 +482,8 @@ public class Scene1 extends JPanel {
                     break;
                 // Add more cases for different enemy types if needed
                 case "Alien2":
-                    // Enemy enemy2 = new Alien2(sd.x, sd.y);
-                    // enemies.add(enemy2);
+                    Enemy enemy2 = new Alien2(sd.x, sd.y);
+                    enemies.add(enemy2);
                     break;
                 case "PowerUp-SpeedUp":
                     // Handle speed up item spawn
@@ -466,13 +499,15 @@ public class Scene1 extends JPanel {
                     break;
             }
         }
-        final int NUMBER_OF_ALIENS_TO_DESTROY = 16; // Adjust this number as needed
-        if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
+        // Check if stage is completed based on kills
+        if (currentKills >= killsRequired) {
             inGame = false;
             timer.stop();
-            message = "Stage 1 Game won! Going to Boss Fight ...";
+            message = "Stage 1 Complete! Level 2 Unlocked!";
             
-            // game.bossfight();
+            // Update game state
+            gdd.GameState.getInstance().setLevel1Completed(true);
+            gdd.GameState.getInstance().updateHighScore(score);
         }
 
         // player
@@ -522,7 +557,8 @@ public class Scene1 extends JPanel {
                         enemy.setDying(true);
                         explosions.add(new Explosion(enemyX, enemyY));
                         score += 10;  // Add score when enemy is hit
-                        System.out.println("Score: " + score);
+                        currentKills++; // Increment kill count
+                        System.out.println("Score: " + score + ", Kills: " + currentKills);
                         deaths++;
                         shot.die();
                         shotsToRemove.add(shot);
@@ -569,52 +605,69 @@ public class Scene1 extends JPanel {
             if (enemy.isVisible()) {
                 int y = enemy.getY();
                 if (y > GROUND - ALIEN_HEIGHT) {
-                    inGame = false;
-                    message = "Invasion!";
+                    // Enemy reached bottom - lose a life
+                    lives--;
+                    enemy.die(); // Remove the enemy
+                    if (lives <= 0) {
+                        inGame = false;
+                        message = "Game Over - Enemies Invaded!";
+                    }
                 }
                 enemy.act(direction);
             }
         }
+
+        
+
         // bombs - collision detection
         // Bomb is with enemy, so it loops over enemies
-        /*
+
         for (Enemy enemy : enemies) {
+            if (!enemy.isVisible()) continue;
 
-            int chance = randomizer.nextInt(15);
-            Enemy.Bomb bomb = enemy.getBomb();
-
-            if (chance == CHANCE && enemy.isVisible() && bomb.isDestroyed()) {
-
+            int chance = randomizer.nextInt(600); // Much lower bomb frequency
+            if (chance == CHANCE) {
+                Bomb bomb = new Bomb(enemy.getX(), enemy.getY());
                 bomb.setDestroyed(false);
-                bomb.setX(enemy.getX());
-                bomb.setY(enemy.getY());
+                enemyBombs.add(bomb);
+                // System.out.println("Dropping bomb at: " + enemy.getX() + ", " + enemy.getY()); // Commented out - too verbose
             }
+        }
 
-            int bombX = bomb.getX();
-            int bombY = bomb.getY();
-            int playerX = player.getX();
-            int playerY = player.getY();
+        // Bomb update and collision logic
+        Iterator<Bomb> iterator = enemyBombs.iterator();
+        while (iterator.hasNext()) {
+            Bomb bomb = iterator.next();
 
-            if (player.isVisible() && !bomb.isDestroyed()
-                    && bombX >= (playerX)
-                    && bombX <= (playerX + PLAYER_WIDTH)
-                    && bombY >= (playerY)
-                    && bombY <= (playerY + PLAYER_HEIGHT)) {
+            if (bomb.isDestroyed()) continue;
 
-                var ii = new ImageIcon(IMG_EXPLOSION);
-                player.setImage(ii.getImage());
-                player.setDying(true);
-                bomb.setDestroyed(true);
-            }
+            // System.out.println("Updating bomb at: " + bomb.getX() + ", " + bomb.getY()); // Commented out - too verbose
 
-            if (!bomb.isDestroyed()) {
-                bomb.setY(bomb.getY() + 1);
-                if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
+
+            bomb.setY(bomb.getY() + 2); // Slower bomb movement
+
+            // Collision with player
+            if (player.isVisible()) {
+                int bombX = bomb.getX();
+                int bombY = bomb.getY();
+                int playerX = player.getX();
+                int playerY = player.getY();
+
+                if (bombX >= playerX && bombX <= (playerX + PLAYER_WIDTH)
+                && bombY >= playerY && bombY <= (playerY + PLAYER_HEIGHT)) {
+                    player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                    player.setDying(true);
                     bomb.setDestroyed(true);
                 }
             }
+
+            // Hit the ground
+            if (bomb.getY() >= GROUND - BOMB_HEIGHT) {
+                bomb.setDestroyed(true);
+            }
         }
-         */
+
+ 
     }
 
     private void doGameCycle() {
@@ -679,6 +732,32 @@ public class Scene1 extends JPanel {
                         shots.add(new Shot(x, y, 0, -20));       // center
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    }
+                }
+            }
+            
+            // Game over controls
+            if (!inGame) {
+                if (message.equals("Stage 1 Complete! Level 2 Unlocked!")) {
+                    // Victory screen controls
+                    if (key == KeyEvent.VK_SPACE) {
+                        // Go to boss fight
+                        stop();
+                        game.bossfight();
+                    } else if (key == KeyEvent.VK_ESCAPE) {
+                        // Return to level select
+                        stop();
+                        game.loadLevelSelect();
+                    }
+                } else {
+                    // Game over screen controls
+                    if (key == KeyEvent.VK_R) {
+                        // Restart current scene
+                        restartScene();
+                    } else if (key == KeyEvent.VK_ESCAPE) {
+                        // Return to level select
+                        stop();
+                        game.loadLevelSelect();
                     }
                 }
             }
