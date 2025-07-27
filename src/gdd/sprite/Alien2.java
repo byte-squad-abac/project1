@@ -28,19 +28,27 @@ public class Alien2 extends Enemy {
                 ii.getIconHeight() * SCALE_FACTOR,
                 java.awt.Image.SCALE_SMOOTH);
         setImage(scaledImage);
+        
+        // Enable animation for this sprite
+        setAnimated(true);
     }
 
     public void act(int direction) {
-        this.y ++;
-
-        // Horizontal oscillation: 2-frame steps left/right
+        // Slower vertical movement - only move every other frame
         frameCount++;
         if (frameCount % 2 == 0) {
+            this.y++;
+        }
+
+        // Horizontal oscillation: slower movement
+        if (frameCount % 4 == 0) {
             this.x += horizontalDirection;
         }
-        if (frameCount % 70 == 0) {
+        if (frameCount % 120 == 0) { // Slower direction change
             horizontalDirection = -horizontalDirection;
         }
+        
+        updateAnimation(); // Update animation frame
     }
 
     public Bomb getBomb() {

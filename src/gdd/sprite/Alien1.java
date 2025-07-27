@@ -26,10 +26,17 @@ public class Alien1 extends Enemy {
                 ii.getIconHeight() * SCALE_FACTOR,
                 java.awt.Image.SCALE_SMOOTH);
         setImage(scaledImage);
+        
+        // Enable animation for this sprite
+        setAnimated(true);
     }
 
     public void act(int direction) {
-        this.y ++;
+        // Slower movement - only move every other frame
+        if (animationFrame % 2 == 0) {
+            this.y++;
+        }
+        updateAnimation(); // Update animation frame
     }
 
     public Bomb getBomb() {
