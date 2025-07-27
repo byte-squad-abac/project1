@@ -24,7 +24,7 @@ public class MultiShot extends PowerUp {
         System.out.println("Current shot type: " + player.getShotType());
 
         int current = player.getShotType();
-        if (current < 3) {
+        if (current < 4) {
             player.setShotType(current + 1);
         }
         this.die();

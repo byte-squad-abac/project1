@@ -97,6 +97,11 @@ public class Scene1 extends JPanel {
 
     private void initAudio() {
         try {
+
+            if (audioPlayer != null) {
+            audioPlayer.stop();
+            }
+
             String filePath = "src/audio/scene1.wav";
             audioPlayer = new AudioPlayer(filePath);
 
@@ -722,7 +727,7 @@ public class Scene1 extends JPanel {
             
             if (key == KeyEvent.VK_SPACE && inGame) {
                 System.out.println("Shots: " + shots.size());
-                if (shots.size() < 4) {
+                if (shots.size() < 5) {
                     if (player.getShotType() == 1) {
                         // One straight shot
                         shots.add(new Shot(x, y, 0, -20));
@@ -730,11 +735,18 @@ public class Scene1 extends JPanel {
                         // Two diagonal shots
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
-                    } else if (player.getShotType() >= 3) {
+                    } else if (player.getShotType() == 3) {
                         // Two diagonals + one center
                         shots.add(new Shot(x, y, 0, -20));       // center
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
+                    }
+                    else if (player.getShotType() >= 4) {
+                        shots.add(new Shot(x - 8, y, 0, -20)); // left straight
+                        shots.add(new Shot(x + 8, y, 0, -20)); // right straight
+                        // Two diagonal
+                        shots.add(new Shot(x - 15, y, -5, -20)); // diagonal left
+                        shots.add(new Shot(x + 15, y, 5, -20));  // diagonal right
                     }
                 }
             }

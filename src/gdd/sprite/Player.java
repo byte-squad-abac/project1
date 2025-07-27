@@ -46,8 +46,8 @@ public class Player extends Sprite {
         return shotType;
     }
 
-    public void setShotType(int shotType) {
-        this.shotType = shotType;
+    public void setShotType(int type) {
+    shotType = Math.min(type, 4);
     }
 
 

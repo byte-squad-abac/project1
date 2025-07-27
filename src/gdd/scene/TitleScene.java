@@ -73,6 +73,9 @@ public class TitleScene extends JPanel {
 
     private void initAudio() {
         try {
+            if (audioPlayer != null) {
+            audioPlayer.stop();
+        }
             String filePath = "src/audio/title.wav";
             audioPlayer = new AudioPlayer(filePath);
             System.out.println("Playing Title audio");
