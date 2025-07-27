@@ -29,6 +29,7 @@ public class Global {
     public static final int PLAYER_HEIGHT = 20; // Doubled from 10
 
     // Images
+    public static final String IMG_POWERUP_MULTISHOT = "src/images/powerup-m.png";
     public static final String IMG_ENEMY = "src/images/alien.png";
     public static final String IMG_ENEMY_1 = "src/images/alien 1.png";
     public static final String IMG_PLAYER = "src/images/player.png";

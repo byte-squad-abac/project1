@@ -58,6 +58,7 @@ public class TitleScene extends JPanel {
 
             if (audioPlayer != null) {
                 audioPlayer.stop();
+            System.out.println("Stopping Title audio");
             }
         } catch (Exception e) {
             System.err.println("Error closing audio player.");
@@ -72,9 +73,12 @@ public class TitleScene extends JPanel {
 
     private void initAudio() {
         try {
+            if (audioPlayer != null) {
+            audioPlayer.stop();
+        }
             String filePath = "src/audio/title.wav";
             audioPlayer = new AudioPlayer(filePath);
-
+            System.out.println("Playing Title audio");
             audioPlayer.play();
         } catch (Exception e) {
             System.err.println("Error with playing sound.");
@@ -117,7 +121,7 @@ public class TitleScene extends JPanel {
         // Draw Team Name
     
         String teamLine1 = "Team Name: Just2D";
-        String teamLine2 = "Team Members: Lut lat Aung, Wai Yan Paing, Lu Phone Maw";
+        String teamLine2 = "Team Members: Lut Lat Aung, Wai Yan Paing, Lu Phone Maw";
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setFont(g2d.getFont().deriveFont(20f));
@@ -171,13 +175,8 @@ public class TitleScene extends JPanel {
             System.out.println("Title.keyPressed: " + e.getKeyCode());
             int key = e.getKeyCode();
             if (key == KeyEvent.VK_SPACE) {
-                game.loadscene1();
+                game.loadLevelSelect();
             }
-
-            // Boss Fight trigger (used for testing)
-            // if (key == KeyEvent.VK_ENTER){
-            //     game.bossfight();
-            // }
 
         }
     }
