@@ -490,7 +490,7 @@ public class Scene1 extends JPanel {
                     break;
             }
         }
-        final int NUMBER_OF_ALIENS_TO_DESTROY = 16; // Adjust this number as needed 16
+        final int NUMBER_OF_ALIENS_TO_DESTROY = 1; // Adjust this number as needed 16
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
             timer.stop();
