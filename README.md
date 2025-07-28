@@ -82,7 +82,7 @@ Development is limited to the class codebase to prove originality and understand
 
 ## Controls
 
-Shoot / Fire - Space
+Shoot / Fire - Space<br>
 left / right movement - left / right arrow key
 
 ---
