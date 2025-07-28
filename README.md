@@ -1,6 +1,12 @@
 # Space Invaders ‑ Extended Edition
 
-> **Team**: Just2D
+## Team - Just2D
+
+Lut Lat Aung - 6511163 [Github](https://github.com/Lut-Lat-Aung)<br>
+Lu Phone Maw - 6511157 [Github](https://github.com/luphone04)<br>
+Wai Yan Paing - 6511171 [Github](https://github.com/Lucas1792003)<br>
+
+
 > **Course**: GDD — Game Development & Design  
 > **Assessment Weight**: 20%  
 > **Due**: **Monday, 28 July 2025**  
@@ -104,10 +110,5 @@ mvn clean package     # or use Gradle if configured
 # 3. Run
 java -jar target/space-invaders.jar
 ```
-## Team - Just2D
-
-Lut Lat Aung - 6511163 [Github](https://github.com/Lut-Lat-Aung)<br>
-Lu Phone Maw - 6511157 [Github](https://github.com/luphone04)<br>
-Wai Yan Paing - 6511171 [Github](https://github.com/Lucas1792003)<br>
 
 
