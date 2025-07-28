@@ -9,13 +9,22 @@
 ## Table of Contents
 
 1. [Overview](#overview)  
-2. [Gameplay & Features](#gameplay--features)  
-3. [Build & Run](#build--run)  
-4. [Controls](#controls)  
-5. [Repository Structure](#repository-structure)  
-6. [Description](#description)  
+2. [Description](#description)  
+3. [Requirements](#requirements)
+4. [Gameplay & Features](#gameplay--features)
+5. [Controls](#controls)  
+6. [Build & Run](#build--run)  
 7. [Team](#team)  
-8. [Requirements](#requirements)
+
+---
+
+## Overview
+
+This project reimagines **Konami’s Life Force / Salamander** side-scroll shooter within the classic *Space Invaders* codebase used in class.  
+The game is built with Java (Swing/AWT) and features **two scrolling stages**, a **boss fight**, **animated sprites**, multiple enemies, and a **power-up system**.  
+Development is limited to the class codebase to prove originality and understanding.
+
+🕹 Gameplay Video (5 min) → **[YouTube Link Here]**
 
 ---
 
@@ -54,15 +63,7 @@
 ---
 
 
-## Overview
 
-This project reimagines **Konami’s Life Force / Salamander** side-scroll shooter within the classic *Space Invaders* codebase used in class.  
-The game is built with Java (Swing/AWT) and features **two scrolling stages**, a **boss fight**, **animated sprites**, multiple enemies, and a **power-up system**.  
-Development is limited to the class codebase to prove originality and understanding.
-
-🕹 Gameplay Video (5 min) → **[YouTube Link Here]**
-
----
 
 ## Gameplay & Features
 
@@ -76,6 +77,13 @@ Development is limited to the class codebase to prove originality and understand
 | **Enemy Bombs**       | Managed in `List<Bomb>` per `Enemy`                                            |
 | **Power-Ups**         | 4 levels of Speed and Multi-Shot, optional 3-way shot                          |
 | **Dashboard (HUD)**   | Displays Score, Speed Level, Shot Level, and Lives                             |
+
+---
+
+## Controls
+
+Shoot / Fire - Space
+left / right movement - left / right arrow key
 
 ---
 
