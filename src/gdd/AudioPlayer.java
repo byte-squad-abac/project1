@@ -8,6 +8,7 @@ import java.util.Scanner;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -171,6 +172,23 @@ public class AudioPlayer {
                 new File(filePath).getAbsoluteFile());
         clip.open(audioInputStream);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+    
+    // Method to set volume (0.0f to 1.0f)
+    public void setVolume(float volume) {
+        if (clip != null && clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            
+            // Convert linear volume (0.0-1.0) to decibels
+            // Volume of 0.0 = minimum gain, 1.0 = maximum gain
+            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+            
+            // Clamp to the control's range
+            dB = Math.max(dB, gainControl.getMinimum());
+            dB = Math.min(dB, gainControl.getMaximum());
+            
+            gainControl.setValue(dB);
+        }
     }
 
 }

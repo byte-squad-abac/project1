@@ -6,13 +6,16 @@ import javax.swing.ImageIcon;
 public class Boss extends Enemy {
 
     private Bomb bomb;
-    private int health = 20; // Boss requires 20 hits to defeat - much harder!
+    private int health = 100; // EPIC BOSS: 100 HP for 5-minute fight!
+    private int maxHealth = 100;
     private int frameCount = 0;
     private int horizontalDirection = 1;
     private int verticalDirection = 1;
     private static final int BOSS_SPEED = 2;
-    private int attackMode = 0; // 0 = normal, 1 = aggressive, 2 = retreat, 3 = barrage, 4 = death spiral
+    private int phase = 1; // 7 phases for epic fight
+    private int attackMode = 0; // Multiple attack modes per phase
     private int modeTimer = 0;
+    private int phaseTimer = 0;
     
     // Progressive difficulty enhancements
     private double speedMultiplier = 1.0;
@@ -30,6 +33,23 @@ public class Boss extends Enemy {
     private int originalX;
     private boolean wallAttackReady = false;
     private int wallAttackCooldown = 0;
+    
+    // NEW EPIC BOSS MECHANICS
+    private int minionSpawnTimer = 0;
+    private boolean shielded = false;
+    private int shieldGeneratorsActive = 0;
+    private boolean shieldPhaseCompleted = false;
+    private boolean teleportReady = false;
+    private int teleportCooldown = 0;
+    private boolean isTeleporting = false;
+    private int teleportTimer = 0;
+    private int laserSweepTimer = 0;
+    private int homingMissileTimer = 0;
+    private int healingTimer = 0;
+    private boolean healingPhase = false;
+    private int environmentalHazardTimer = 0;
+    private double teleportTargetX = 0;
+    private double teleportTargetY = 0;
 
     public Boss(int x, int y) {
         super(x, y);
@@ -67,6 +87,7 @@ public class Boss extends Enemy {
     public void act(int direction) {
         frameCount++;
         modeTimer++;
+        phaseTimer++;
         
         // Handle invincibility frames
         if (invincible) {
@@ -76,69 +97,132 @@ public class Boss extends Enemy {
             }
         }
         
+        // Determine current phase based on health
+        updatePhase();
+        
+        // Update all timers
+        updateTimers();
+        
         // Progressive speed increase based on health loss
         updateSpeedMultiplier();
         
-        // Handle charge attack cooldown
-        if (wallAttackCooldown > 0) {
-            wallAttackCooldown--;
+        // Handle teleportation
+        if (isTeleporting) {
+            handleTeleportation();
+            return; // Skip normal movement during teleport
         }
         
-        // Determine attack mode based on health thresholds (updated for 20 HP)
-        if (health <= 4) { // 20% health - Death Spiral
-            attackMode = 4;
-        } else if (health <= 10) { // 50% health - Bomb Barrage mode
-            attackMode = 3;
-            // Enable wall attacks at 50% health
-            if (wallAttackCooldown <= 0 && frameCount % 360 == 0) { // Every 6 seconds
-                wallAttackReady = true;
-                wallAttackCooldown = 300; // 5 second cooldown
-            }
-        } else if (health <= 6) {
-            attackMode = 1; // Aggressive when low health
-        } else if (health <= 12) {
-            attackMode = 2; // Retreat mode
+        // Phase-specific behaviors
+        handlePhaseSpecificMechanics();
+        
+        // Movement based on current phase and attack mode
+        handleMovement();
+        
+        updateAnimation(); // Update animation frame
+    }
+    
+    private void updatePhase() {
+        int oldPhase = phase;
+        
+        // 7 phases for epic boss fight
+        if (health > 85) {
+            phase = 1; // Awakening
+        } else if (health > 70) {
+            phase = 2; // First Assault
+        } else if (health > 55) {
+            phase = 3; // Shield Barrier
+        } else if (health > 40) {
+            phase = 4; // Minion Army
+        } else if (health > 25) {
+            phase = 5; // Laser Fury
+        } else if (health > 10) {
+            phase = 6; // Chaos Mode
+        } else {
+            phase = 7; // Death Spiral
+            healingPhase = true; // Boss starts healing in final phase
         }
         
-        // Switch modes periodically (except for special modes)
-        if (attackMode < 3 && modeTimer > 300) { // Change mode every 5 seconds
+        // Reset shield phase completion when exiting Phase 3
+        if (oldPhase == 3 && phase != 3) {
+            shieldPhaseCompleted = false;
+        }
+    }
+    
+    private void updateTimers() {
+        if (wallAttackCooldown > 0) wallAttackCooldown--;
+        if (teleportCooldown > 0) teleportCooldown--;
+        if (minionSpawnTimer > 0) minionSpawnTimer--;
+        if (laserSweepTimer > 0) laserSweepTimer--;
+        if (homingMissileTimer > 0) homingMissileTimer--;
+        if (healingTimer > 0) healingTimer--;
+        if (environmentalHazardTimer > 0) environmentalHazardTimer--;
+    }
+    
+    private void handlePhaseSpecificMechanics() {
+        switch (phase) {
+            case 1: // Awakening - Tutorial phase
+                handleAwakeningPhase();
+                break;
+            case 2: // First Assault - Minions start
+                handleFirstAssaultPhase();
+                break;
+            case 3: // Shield Barrier - Invulnerability shields
+                handleShieldBarrierPhase();
+                break;
+            case 4: // Minion Army - Heavy minion spawning
+                handleMinionArmyPhase();
+                break;
+            case 5: // Laser Fury - Laser sweeps and homing missiles
+                handleLaserFuryPhase();
+                break;
+            case 6: // Chaos Mode - All mechanics combined
+                handleChaosModePhase();
+                break;
+            case 7: // Death Spiral - Final desperate phase
+                handleDeathSpiralPhase();
+                break;
+        }
+    }
+    
+    private void handleMovement() {
+        // Determine attack mode based on phase and health
+        if (phase >= 7) {
+            attackMode = 4; // Death spiral
+        } else if (phase >= 5) {
+            attackMode = 3; // Barrage mode
+        } else if (health <= maxHealth * 0.3) {
+            attackMode = 1; // Aggressive
+        } else if (modeTimer > 300) { // Change mode every 5 seconds
             attackMode = (attackMode + 1) % 3;
             modeTimer = 0;
         }
         
         // Movement based on attack mode
         switch (attackMode) {
-            case 0: // Normal pattern
-                normalMovement();
-                break;
-            case 1: // Aggressive pattern
-                aggressiveMovement();
-                break;
-            case 2: // Retreat pattern
-                retreatMovement();
-                break;
-            case 3: // Bomb barrage pattern
-                barrageMovement();
-                break;
-            case 4: // Death spiral pattern
-                deathSpiralMovement();
-                break;
+            case 0: normalMovement(); break;
+            case 1: aggressiveMovement(); break;
+            case 2: retreatMovement(); break;
+            case 3: barrageMovement(); break;
+            case 4: deathSpiralMovement(); break;
         }
-        
-        updateAnimation(); // Update animation frame
     }
     
     private void updateSpeedMultiplier() {
-        // Increase speed by 50% every 25% health lost (updated for 20 HP)
-        int healthLost = 20 - health;
-        if (healthLost >= 16) { // 80% health lost (4 health remaining)
-            speedMultiplier = 3.0; // 200% increase - INSANE SPEED
-        } else if (healthLost >= 12) { // 60% health lost (8 health remaining)
-            speedMultiplier = 2.5; // 150% increase
-        } else if (healthLost >= 8) { // 40% health lost (12 health remaining)
-            speedMultiplier = 2.0; // 100% increase
-        } else if (healthLost >= 4) { // 20% health lost (16 health remaining)
-            speedMultiplier = 1.5; // 50% increase
+        // Progressive speed increase based on health percentage (for 100 HP)
+        double healthPercent = (double) health / maxHealth;
+        
+        if (healthPercent <= 0.1) { // 10% health - INSANE SPEED
+            speedMultiplier = 4.0;
+        } else if (healthPercent <= 0.25) { // 25% health - VERY FAST
+            speedMultiplier = 3.0;
+        } else if (healthPercent <= 0.4) { // 40% health - FAST
+            speedMultiplier = 2.5;
+        } else if (healthPercent <= 0.55) { // 55% health - MEDIUM-FAST
+            speedMultiplier = 2.0;
+        } else if (healthPercent <= 0.7) { // 70% health - MEDIUM
+            speedMultiplier = 1.5;
+        } else if (healthPercent <= 0.85) { // 85% health - SLIGHTLY FAST
+            speedMultiplier = 1.2;
         } else {
             speedMultiplier = 1.0; // Normal speed
         }
@@ -236,6 +320,181 @@ public class Boss extends Enemy {
             spiralCenterY = 120 + (int)(Math.random() * 80);
         }
     }
+    
+    // ==================== EPIC BOSS PHASE HANDLERS ====================
+    
+    private void handleAwakeningPhase() {
+        // Phase 1: Tutorial phase - basic attacks only
+        // Standard bomb dropping every 3 seconds
+        if (frameCount % 180 == 0) {
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleFirstAssaultPhase() {
+        // Phase 2: Minions start spawning
+        if (minionSpawnTimer <= 0) {
+            // Spawn 2-3 minions every 10 seconds
+            minionSpawnTimer = 600; // 10 seconds
+            // Signal to spawn minions (handled in boss fight scene)
+        }
+        
+        // More frequent bomb attacks
+        if (frameCount % 120 == 0) { // Every 2 seconds
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleShieldBarrierPhase() {
+        // Phase 3: Boss becomes shielded (only once per phase)
+        if (!shielded && !shieldPhaseCompleted && phaseTimer > 60) { // 1 second after entering phase
+            shielded = true;
+            shieldGeneratorsActive = 3; // Signal to spawn 3 shield generators
+        }
+        
+        // Continue attacking while shielded
+        if (frameCount % 150 == 0) { // Every 2.5 seconds
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleMinionArmyPhase() {
+        // Phase 4: Minion spawning is now handled by Wave 1 style system in BossFight.java
+        // Boss retreats to top and moves more defensively
+        if (this.y > 60) {
+            this.y -= (int)(speedMultiplier);
+        }
+        
+        // Reduced direct attacks while minions are active
+        if (frameCount % 240 == 0) { // Every 4 seconds
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleLaserFuryPhase() {
+        // Phase 5: Laser sweeps and homing missiles
+        
+        // Laser sweep every 8 seconds
+        if (laserSweepTimer <= 0) {
+            laserSweepTimer = 480; // 8 seconds
+            // Signal to create laser sweep
+        }
+        
+        // Homing missiles every 6 seconds
+        if (homingMissileTimer <= 0) {
+            homingMissileTimer = 360; // 6 seconds
+            // Signal to spawn homing missiles
+        }
+        
+        // Teleportation every 10 seconds
+        if (teleportCooldown <= 0 && !isTeleporting) {
+            teleportReady = true;
+            teleportCooldown = 600; // 10 seconds
+        }
+        
+        // Regular bomb barrage
+        if (frameCount % 180 == 0) { // Every 3 seconds
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleChaosModePhase() {
+        // Phase 6: ALL mechanics combined
+        
+        // Frequent minion spawning
+        if (minionSpawnTimer <= 0) {
+            minionSpawnTimer = 360; // 6 seconds
+        }
+        
+        // Frequent laser sweeps
+        if (laserSweepTimer <= 0) {
+            laserSweepTimer = 300; // 5 seconds
+        }
+        
+        // Frequent homing missiles
+        if (homingMissileTimer <= 0) {
+            homingMissileTimer = 240; // 4 seconds
+        }
+        
+        // Environmental hazards
+        if (environmentalHazardTimer <= 0) {
+            environmentalHazardTimer = 420; // 7 seconds
+        }
+        
+        // Frequent teleportation
+        if (teleportCooldown <= 0 && !isTeleporting) {
+            teleportReady = true;
+            teleportCooldown = 360; // 6 seconds
+        }
+        
+        // Constant bomb barrage
+        if (frameCount % 90 == 0) { // Every 1.5 seconds
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleDeathSpiralPhase() {
+        // Phase 7: Final desperate phase with healing
+        
+        // Boss healing every 15 seconds
+        if (healingTimer <= 0) {
+            healingTimer = 900; // 15 seconds
+            if (health < maxHealth) {
+                health += 2; // Heal 2 HP
+                if (health > maxHealth) health = maxHealth;
+            }
+        }
+        
+        // Maximum frequency everything
+        if (minionSpawnTimer <= 0) {
+            minionSpawnTimer = 240; // 4 seconds
+        }
+        
+        if (laserSweepTimer <= 0) {
+            laserSweepTimer = 180; // 3 seconds
+        }
+        
+        if (homingMissileTimer <= 0) {
+            homingMissileTimer = 150; // 2.5 seconds
+        }
+        
+        if (environmentalHazardTimer <= 0) {
+            environmentalHazardTimer = 240; // 4 seconds
+        }
+        
+        // Desperate teleportation
+        if (teleportCooldown <= 0 && !isTeleporting) {
+            teleportReady = true;
+            teleportCooldown = 180; // 3 seconds
+        }
+        
+        // Bullet hell - constant bombs
+        if (frameCount % 60 == 0) { // Every 1 second
+            wallAttackReady = true;
+        }
+    }
+    
+    private void handleTeleportation() {
+        if (teleportTimer <= 0) {
+            // Start teleport - disappear
+            isTeleporting = true;
+            teleportTimer = 60; // 1 second teleport duration
+            
+            // Calculate random teleport destination
+            int bossWidth = this.getImage() != null ? this.getImage().getWidth(null) : 100;
+            teleportTargetX = BORDER_LEFT + Math.random() * (BOARD_WIDTH - BORDER_LEFT - BORDER_RIGHT - bossWidth);
+            teleportTargetY = 50 + Math.random() * 150; // Stay in upper area
+        } else {
+            teleportTimer--;
+            if (teleportTimer <= 0) {
+                // Complete teleport - reappear
+                this.x = (int) teleportTargetX;
+                this.y = (int) teleportTargetY;
+                isTeleporting = false;
+                teleportReady = false;
+            }
+        }
+    }
 
     public Bomb getBomb() {
         return bomb;
@@ -246,7 +505,7 @@ public class Boss extends Enemy {
     }
 
     public void takeDamage() {
-        if (!invincible) { // Only take damage if not invincible
+        if (!invincible && !shielded) { // Only take damage if not invincible AND not shielded
             health--;
             invincible = true;
             invincibilityTimer = INVINCIBILITY_DURATION;
@@ -355,10 +614,132 @@ public class Boss extends Enemy {
     }
     
     public int getBombSpeed() {
-        // Bombs get faster as boss gets angrier
-        if (health <= 4) return 8;  // Death spiral - VERY fast bombs
-        if (health <= 8) return 6;  // Low health - fast bombs
-        if (health <= 12) return 4; // Medium health - medium speed
+        // Bombs get faster as boss gets angrier (updated for 100 HP)
+        if (health <= 10) return 8;  // Death spiral - VERY fast bombs
+        if (health <= 25) return 6;  // Low health - fast bombs
+        if (health <= 40) return 4; // Medium health - medium speed
         return 3; // High health - normal speed
+    }
+    
+    // ==================== NEW EPIC BOSS GETTERS ====================
+    
+    public int getPhase() {
+        return phase;
+    }
+    
+    public boolean shouldSpawnMinions() {
+        return false; // Disabled - using Wave 1 style spawning in BossFight.java
+    }
+    
+    public void resetMinionSpawnTimer() {
+        if (phase == 2) {
+            minionSpawnTimer = 900; // 15 seconds for phase 2 (increased from 10)
+        } else if (phase == 4) {
+            minionSpawnTimer = 720; // 12 seconds for phase 4 (increased from 8)
+        } else if (phase >= 6) {
+            minionSpawnTimer = phase == 7 ? 360 : 540; // 6s for phase 7, 9s for phase 6 (increased)
+        }
+    }
+    
+    public int getMinionsToSpawn() {
+        if (phase == 2) return 1 + (int)(Math.random() * 2); // 1-2 minions (reduced)
+        if (phase == 4) return 2 + (int)(Math.random() * 2); // 2-3 minions (reduced from 5-6)
+        if (phase >= 6) return 3 + (int)(Math.random() * 2); // 3-4 minions (reduced from 4-6)
+        return 0;
+    }
+    
+    public boolean isShielded() {
+        return shielded;
+    }
+    
+    public boolean shouldSpawnShieldGenerators() {
+        return shieldGeneratorsActive > 0;
+    }
+    
+    public int getShieldGeneratorsToSpawn() {
+        int count = shieldGeneratorsActive;
+        shieldGeneratorsActive = 0; // Reset after spawning
+        return count;
+    }
+    
+    public void removeShield() {
+        shielded = false;
+        shieldGeneratorsActive = 0;
+        if (phase == 3) {
+            shieldPhaseCompleted = true; // Mark Phase 3 shield phase as completed
+        }
+    }
+    
+    public boolean shouldCreateLaserSweep() {
+        return laserSweepTimer <= 0 && phase >= 5;
+    }
+    
+    public void resetLaserSweepTimer() {
+        if (phase == 5) {
+            laserSweepTimer = 480; // 8 seconds
+        } else if (phase == 6) {
+            laserSweepTimer = 300; // 5 seconds
+        } else if (phase == 7) {
+            laserSweepTimer = 180; // 3 seconds
+        }
+    }
+    
+    public boolean shouldFireHomingMissiles() {
+        return homingMissileTimer <= 0 && phase >= 5;
+    }
+    
+    public void resetHomingMissileTimer() {
+        if (phase == 5) {
+            homingMissileTimer = 360; // 6 seconds
+        } else if (phase == 6) {
+            homingMissileTimer = 240; // 4 seconds
+        } else if (phase == 7) {
+            homingMissileTimer = 150; // 2.5 seconds
+        }
+    }
+    
+    public boolean shouldTeleport() {
+        if (teleportReady && !isTeleporting && phase >= 5) {
+            teleportReady = false;
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean isTeleporting() {
+        return isTeleporting;
+    }
+    
+    public boolean shouldCreateEnvironmentalHazard() {
+        return environmentalHazardTimer <= 0 && phase >= 6;
+    }
+    
+    public void resetEnvironmentalHazardTimer() {
+        if (phase == 6) {
+            environmentalHazardTimer = 420; // 7 seconds
+        } else if (phase == 7) {
+            environmentalHazardTimer = 240; // 4 seconds
+        }
+    }
+    
+    public boolean isHealingPhase() {
+        return healingPhase && phase == 7;
+    }
+    
+    public String getPhaseTitle() {
+        switch (phase) {
+            case 1: return "AWAKENING";
+            case 2: return "FIRST ASSAULT";
+            case 3: return "SHIELD BARRIER";
+            case 4: return "MINION ARMY";
+            case 5: return "LASER FURY";
+            case 6: return "CHAOS MODE";
+            case 7: return "DEATH SPIRAL";
+            default: return "UNKNOWN PHASE";
+        }
+    }
+    
+    public double getHealthPercentage() {
+        return (double) health / maxHealth;
     }
 }

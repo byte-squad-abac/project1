@@ -4,7 +4,7 @@ public class GameState {
     private static GameState instance;
     
     private boolean level1Completed = false;
-    private boolean level2Unlocked = false;
+    private boolean level2Unlocked = true; // TEMPORARILY UNLOCKED FOR TESTING
     private int highScore = 0;
     private int currentLevel = 1;
     
