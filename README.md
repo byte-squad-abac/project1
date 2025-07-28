@@ -41,15 +41,15 @@ Development is limited to the class codebase to prove originality and understand
 
 ## Requirements
 
-1. Side-scroll (Optional) 
+1. Side-scroll (Optional) (not done)
 2. Must extend in-class codebase only  ☑️
 3. Title Scene with team names  ☑️
 4. At least **two** stages  ☑️
-5. Each stage plays ~5 minutes (load array from external CSV)  
+5. Each stage plays ~5 minutes (load array from external CSV)  ☑️
    - Ref: [Reading a CSV File into an Array | Baeldung](https://www.baeldung.com/java-csv-file-array)  
-6. Last stage has a boss fight  
+6. Last stage has a boss fight  ☑️
 7. At least **two** enemy types  ☑️
-8. All sprites must be animated (drawing or clipping)  
+8. All sprites must be animated (drawing or clipping)  ☑️
 9. Enemy bombs must be in a separate list, part of `Enemy`  ☑️
 10. Power-Ups:
     - Speed up × 4 ☑️
@@ -69,14 +69,13 @@ Development is limited to the class codebase to prove originality and understand
 
 | Requirement           | Implementation                                                                 |
 | --------------------- | ------------------------------------------------------------------------------ |
-| **Side-Scrolling**    | Camera scrolls across stage map loaded from CSV (`assets/stages/stage#.csv`)   |
-| **≥ Two Stages**      | `SceneStage1`, `SceneStage2` (~5 min each)                                     |
-| **Boss Fight**        | Final boss appears after stage 2 ends                                          |
-| **Animated Sprites**  | Clipped animation using `SpriteSheet.java`                                     |
-| **Enemy Types**       | Includes `StraightEnemy`, `ZigZagEnemy`, and `Boss`                            |
+| **≥ Two Stages**      | `SceneStage1`, `BossFight` (~5 min each)                                       |
+| **Boss Fight**        | Final boss appears after stage 1 ends                                          |
+| **Animated Sprites**  | Clipped animation                                                              |
+| **Enemy Types**       | Includes `NormalEnemy`, `BigSizeEnemy`, and `Boss`                             |
 | **Enemy Bombs**       | Managed in `List<Bomb>` per `Enemy`                                            |
-| **Power-Ups**         | 4 levels of Speed and Multi-Shot, optional 3-way shot                          |
-| **Dashboard (HUD)**   | Displays Score, Speed Level, Shot Level, and Lives                             |
+| **Power-Ups**         | over 4 spawns of Speed and Multi-Shot                                          |
+| **Dashboard (HUD)**   | Displays Score, Speed Level, Shot Type, and Lives                             |
 
 ---
 
