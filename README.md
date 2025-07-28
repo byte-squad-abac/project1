@@ -1,5 +1,6 @@
 # Space Invaders ‑ Extended Edition
 
+> **Team**: Just2D
 > **Course**: GDD — Game Development & Design  
 > **Assessment Weight**: 20%  
 > **Due**: **Monday, 28 July 2025**  
@@ -29,6 +30,8 @@ Development is limited to the class codebase to prove originality and understand
 ---
 
 ## Description
+
+Player control a spaceship shooting aliens ship invading. Player can collect speedup / shot upgrade to make it easier to fight aliens. After level 1, boss fight will appears and it is not as easy as you think. 
 
 - Start from this code template  
   [mchayapol/gdd-space-invaders-project](https://github.com/mchayapol/gdd-space-invaders-project)  
