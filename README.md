@@ -20,7 +20,7 @@
 
 ## Overview
 
-This project reimagines **Konami’s Life Force / Salamander** side-scroll shooter within the classic *Space Invaders* codebase used in class.  
+This project reimagines **Konami’s Life Force / Salamander** shooter within the classic *Space Invaders* codebase used in class.  
 The game is built with Java (Swing/AWT) and features **two scrolling stages**, a **boss fight**, **animated sprites**, multiple enemies, and a **power-up system**.  
 Development is limited to the class codebase to prove originality and understanding.
 
@@ -101,7 +101,7 @@ mvn clean package     # or use Gradle if configured
 # 3. Run
 java -jar target/space-invaders.jar
 ```
-## Team
+## Team - Just2D
 
 Lut Lat Aung - 6511163 [Github](https://github.com/Lut-Lat-Aung)<br>
 Lu Phone Maw - 6511157 [Github](https://github.com/luphone04)<br>
