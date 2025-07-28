@@ -4,6 +4,7 @@ import gdd.AudioPlayer;
 import gdd.Game;
 import static gdd.Global.*;
 import gdd.SpawnDetails;
+import gdd.powerup.Heart;
 import gdd.powerup.MultiShot;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
@@ -11,9 +12,16 @@ import gdd.sprite.Alien1;
 import gdd.sprite.Boss;
 import gdd.sprite.Bomb;
 import gdd.sprite.Enemy;
+import gdd.sprite.EnvironmentalHazard;
 import gdd.sprite.Explosion;
+import gdd.sprite.FastMinion;
+import gdd.sprite.HomingMissile;
+import gdd.sprite.LaserSweep;
 import gdd.sprite.Player;
+import gdd.sprite.ShieldGenerator;
 import gdd.sprite.Shot;
+import gdd.sprite.SlowMinion;
+import gdd.sprite.TankMinion;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -48,6 +56,13 @@ public class BossFight extends JPanel {
     private Player player;
     private Boss boss;
     private boolean bossSpawned = false;
+    
+    // EPIC BOSS FIGHT MECHANICS
+    private List<Enemy> minions;
+    private List<ShieldGenerator> shieldGenerators;
+    private List<LaserSweep> laserSweeps;
+    private List<HomingMissile> homingMissiles;
+    private List<EnvironmentalHazard> environmentalHazards;
     // private Shot shot;
 
 
@@ -174,6 +189,13 @@ public class BossFight extends JPanel {
         if (explosions != null) explosions.clear();
         if (bossBombs != null) bossBombs.clear();
         
+        // Clear epic boss mechanics
+        if (minions != null) minions.clear();
+        if (shieldGenerators != null) shieldGenerators.clear();
+        if (laserSweeps != null) laserSweeps.clear();
+        if (homingMissiles != null) homingMissiles.clear();
+        if (environmentalHazards != null) environmentalHazards.clear();
+        
         // Reinitialize game objects
         gameInit();
         
@@ -196,6 +218,13 @@ public class BossFight extends JPanel {
         explosions = new ArrayList<>();
         shots = new ArrayList<>();
         bossBombs = new ArrayList<>();
+        
+        // Initialize epic boss mechanics
+        minions = new ArrayList<>();
+        shieldGenerators = new ArrayList<>();
+        laserSweeps = new ArrayList<>();
+        homingMissiles = new ArrayList<>();
+        environmentalHazards = new ArrayList<>();
 
         // for (int i = 0; i < 4; i++) {
         // for (int j = 0; j < 6; j++) {
@@ -437,6 +466,59 @@ public class BossFight extends JPanel {
 
         explosions.removeAll(toRemove);
     }
+    
+    // ==================== EPIC BOSS FIGHT DRAWING METHODS ====================
+    
+    private void drawMinions(Graphics g) {
+        for (Enemy minion : minions) {
+            if (minion.isVisible()) {
+                // Apply proper sprite clipping animation
+                if (minion.isAnimated()) {
+                    int[] clip = minion.getFrameClip();
+                    g.drawImage(minion.getImage(),
+                               minion.getX(), minion.getY(),                           
+                               minion.getX() + clip[2], minion.getY() + clip[3],       
+                               clip[0], clip[1],                                     
+                               clip[0] + clip[2], clip[1] + clip[3],                 
+                               this);
+                } else {
+                    g.drawImage(minion.getImage(), minion.getX(), minion.getY(), this);
+                }
+            }
+            
+            if (minion.isDying()) {
+                minion.die();
+            }
+        }
+    }
+    
+    private void drawShieldGenerators(Graphics g) {
+        for (ShieldGenerator generator : shieldGenerators) {
+            if (generator.isVisible()) {
+                generator.draw(g, this);
+            }
+        }
+    }
+    
+    private void drawLaserSweeps(Graphics g) {
+        for (LaserSweep laser : laserSweeps) {
+            laser.draw(g);
+        }
+    }
+    
+    private void drawHomingMissiles(Graphics g) {
+        for (HomingMissile missile : homingMissiles) {
+            if (missile.isVisible()) {
+                missile.draw(g, this);
+            }
+        }
+    }
+    
+    private void drawEnvironmentalHazards(Graphics g) {
+        for (EnvironmentalHazard hazard : environmentalHazards) {
+            hazard.draw(g);
+        }
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -492,6 +574,11 @@ public class BossFight extends JPanel {
             drawExplosions(g);
             drawPowreUps(g);
             drawAliens(g);
+            drawMinions(g);
+            drawShieldGenerators(g);
+            drawLaserSweeps(g);
+            drawHomingMissiles(g);
+            drawEnvironmentalHazards(g);
             drawPlayer(g);
             drawShot(g);
             drawBossBombing(g);
@@ -513,40 +600,59 @@ public class BossFight extends JPanel {
         g.drawString("Speed: " + playerSpeed, 10, 90);
         g.drawString("Shot Type: " + player.getShotType(), 10, 110);
         
-        // Display boss health and attack mode if boss is active
+        // Display epic boss health and phase info if boss is active
         if (boss != null && boss.isVisible() && !boss.isDefeated()) {
+            // Boss health bar
             g.setColor(Color.red);
             g.setFont(new Font("Arial", Font.BOLD, 16));
-            g.drawString("BOSS HEALTH: " + boss.getHealth() + "/20", BOARD_WIDTH / 2 - 80, 30);
+            g.drawString("BOSS HEALTH: " + boss.getHealth() + "/100", BOARD_WIDTH / 2 - 100, 30);
             
-            // Show attack mode
-            String modeText = "";
-            Color modeColor = Color.white;
-            switch (boss.getAttackMode()) {
-                case 0:
-                    modeText = "NORMAL MODE";
-                    modeColor = Color.white;
-                    break;
-                case 1:
-                    modeText = "AGGRESSIVE MODE";
-                    modeColor = Color.red;
-                    break;
-                case 2:
-                    modeText = "RETREAT MODE";
-                    modeColor = Color.yellow;
-                    break;
-                case 3:
-                    modeText = "BARRAGE MODE";
-                    modeColor = Color.orange;
-                    break;
-                case 4:
-                    modeText = "DEATH SPIRAL";
-                    modeColor = Color.magenta;
-                    break;
+            // Health bar visual
+            int barWidth = 200;
+            int barHeight = 10;
+            int barX = BOARD_WIDTH / 2 - 100;
+            int barY = 35;
+            
+            // Background bar
+            g.setColor(Color.DARK_GRAY);
+            g.fillRect(barX, barY, barWidth, barHeight);
+            
+            // Health bar
+            double healthPercent = boss.getHealthPercentage();
+            int healthWidth = (int)(barWidth * healthPercent);
+            
+            if (healthPercent > 0.6) {
+                g.setColor(Color.GREEN);
+            } else if (healthPercent > 0.3) {
+                g.setColor(Color.YELLOW);
+            } else {
+                g.setColor(Color.RED);
             }
-            g.setColor(modeColor);
-            g.setFont(new Font("Arial", Font.BOLD, 12));
-            g.drawString(modeText, BOARD_WIDTH / 2 - 60, 50);
+            g.fillRect(barX, barY, healthWidth, barHeight);
+            
+            // Border
+            g.setColor(Color.WHITE);
+            g.drawRect(barX, barY, barWidth, barHeight);
+            
+            // Boss phase display
+            g.setColor(Color.CYAN);
+            g.setFont(new Font("Arial", Font.BOLD, 18));
+            String phaseText = "PHASE " + boss.getPhase() + ": " + boss.getPhaseTitle();
+            g.drawString(phaseText, BOARD_WIDTH / 2 - 120, 65);
+            
+            // Shield status
+            if (boss.isShielded()) {
+                g.setColor(Color.BLUE);
+                g.setFont(new Font("Arial", Font.BOLD, 14));
+                g.drawString("⚡ SHIELDED - DESTROY GENERATORS! ⚡", BOARD_WIDTH / 2 - 120, 85);
+            }
+            
+            // Healing indicator for final phase
+            if (boss.isHealingPhase()) {
+                g.setColor(Color.MAGENTA);
+                g.setFont(new Font("Arial", Font.BOLD, 12));
+                g.drawString("⚠️ BOSS IS HEALING! ATTACK QUICKLY! ⚠️", BOARD_WIDTH / 2 - 100, 105);
+            }
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -618,10 +724,12 @@ public class BossFight extends JPanel {
                 case "PowerUp-SpeedUp":
                     PowerUp speedUp = new SpeedUp(sd.x, sd.y);
                     powerups.add(speedUp);
+                    System.out.println("CSV SPEEDUP SPAWNED!");
                     break;
                 case "PowerUp-MultiShot":
                     PowerUp multiShot = new MultiShot(sd.x, sd.y);
                     powerups.add(multiShot);
+                    System.out.println("CSV MULTISHOT SPAWNED!");
                     break;
                 default:
                     System.out.println("Unknown enemy type: " + sd.type);
@@ -640,7 +748,15 @@ public class BossFight extends JPanel {
             gdd.GameState.getInstance().updateHighScore(score);
         }
         
-        // Check red zone death EVERY frame (not just when boss takes damage)
+        // ==================== EPIC BOSS MECHANICS ====================
+        
+        // Handle all epic boss mechanics if boss exists
+        if (boss != null && boss.isVisible()) {
+            handleEpicBossMechanics();
+        }
+        
+        // Update arena size and check red zone death EVERY frame
+        updateArenaSize();
         checkRedZoneDeath();
 
         // player
@@ -651,6 +767,13 @@ public class BossFight extends JPanel {
             if (powerup.isVisible()) {
                 powerup.act();
                 if (powerup.collidesWith(player)) {
+                    // Check if it's a heart powerup for life restoration
+                    if (powerup instanceof Heart) {
+                        if (lives < 3) { // Only restore if not at max lives
+                            lives++;
+                            System.out.println("Heart collected! Lives restored to: " + lives);
+                        }
+                    }
                     powerup.upgrade(player);
                     playerSpeed = player.getSpeed(); // Update speed if powerup affects speed
                 }
@@ -742,7 +865,8 @@ public class BossFight extends JPanel {
                 // }
                 shot.act();
 
-                if (!shot.isVisible()) {
+                // More aggressive shot cleanup - remove if off-screen or not visible
+                if (!shot.isVisible() || shot.getY() < -10) {
                     shotsToRemove.add(shot);
                 }
             }
@@ -881,11 +1005,421 @@ public class BossFight extends JPanel {
         bossBombs.removeIf(Bomb::isDestroyed);
     }
     
+    // ==================== EPIC BOSS MECHANICS HANDLER ====================
+    
+    private void handleEpicBossMechanics() {
+        // Debug what phase we're in
+        if (frame % 180 == 0) { // Every 3 seconds
+            System.out.println("[DEBUG] Boss Phase: " + (boss != null ? boss.getPhase() : "NO BOSS") + ", Health: " + (boss != null ? boss.getHealth() : "NO BOSS"));
+        }
+        
+        // 1. MINION SPAWNING (Phase 4+ only)
+        handleMinionSpawning();
+        
+        // 2. SHIELD GENERATOR SYSTEM
+        handleShieldGenerators();
+        
+        // 3. LASER SWEEP ATTACKS
+        handleLaserSweeps();
+        
+        // 4. HOMING MISSILE ATTACKS
+        handleHomingMissiles();
+        
+        // 5. ENVIRONMENTAL HAZARDS
+        handleEnvironmentalHazards();
+        
+        // 6. HEART POWERUP SPAWNING
+        handleHeartSpawning();
+        
+        // 7. GENERAL POWERUP SPAWNING (SpeedUp and MultiShot)
+        handleGeneralPowerupSpawning();
+        
+        // 8. BOSS TELEPORTATION
+        handleBossTeleportation();
+        
+        // 9. UPDATE ALL EPIC MECHANICS
+        updateEpicMechanics();
+        
+        // 10. ENHANCED COLLISION DETECTION
+        handleEpicCollisions();
+    }
+    
+    // Wave 1 style minion spawning - exactly like Scene1
+    private int lastMinionSpawnFrame = 0;
+    private int minionSpawnRate = 180; // Every 3 seconds - reduced difficulty
+    
+    private void handleMinionSpawning() {
+        // Only spawn minions in Phase 4 and later (Minion Army phase)
+        if (boss == null || boss.getPhase() < 4) return;
+        
+        // Wave 1 style timing - spawn every 2 seconds
+        if (frame - lastMinionSpawnFrame >= minionSpawnRate) {
+            lastMinionSpawnFrame = frame;
+            
+            // Wave 1 style spawn chance - 80% enemy, 20% skip (like Scene1 powerup chance)
+            int spawnChance = randomizer.nextInt(100);
+            if (spawnChance < 60) { // 60% chance to spawn a minion - reduced difficulty (like Wave 1 enemies)
+                // Spawn location exactly like Wave 1
+                int x = getSafeSpawnX();
+                int y = 0; // Always spawn at top like Wave 1
+                
+                // Minion type selection based on phase
+                Enemy minion;
+                if (boss.getPhase() == 4) {
+                    // Phase 4 "Minion Army": mostly fast minions (like Wave 1 = all Alien1)
+                    minion = new FastMinion(x, y);
+                } else {
+                    // Phase 5+ (later phases): mix of types
+                    int minionType = randomizer.nextInt(100);
+                    if (minionType < 60) {
+                        minion = new FastMinion(x, y);
+                    } else if (minionType < 85) {
+                        minion = new SlowMinion(x, y);
+                    } else {
+                        minion = new TankMinion(x, y);
+                    }
+                }
+                
+                minion.setAnimated(true); // Enable animation like Wave 1
+                minions.add(minion);
+                System.out.println("MINION SPAWNED: " + minion.getClass().getSimpleName() + " at phase " + boss.getPhase());
+            }
+        }
+    }
+    
+    private void handleShieldGenerators() {
+        if (boss.shouldSpawnShieldGenerators()) {
+            int generatorsToSpawn = boss.getShieldGeneratorsToSpawn();
+            
+            // Spawn shield generators at strategic positions
+            int[] positions = {100, BOARD_WIDTH / 2, BOARD_WIDTH - 150};
+            
+            for (int i = 0; i < Math.min(generatorsToSpawn, 3); i++) {
+                int x = positions[i];
+                int y = 100 + randomizer.nextInt(100); // Middle area
+                
+                ShieldGenerator generator = new ShieldGenerator(x, y);
+                shieldGenerators.add(generator);
+            }
+            
+            System.out.println("Spawned " + generatorsToSpawn + " shield generators - BOSS IS NOW SHIELDED!");
+        }
+    }
+    
+    private void handleLaserSweeps() {
+        if (boss.shouldCreateLaserSweep()) {
+            // Create random laser sweep (horizontal or vertical)
+            int sweepDirection = randomizer.nextInt(2); // 0 = horizontal, 1 = vertical
+            
+            LaserSweep laser = new LaserSweep(sweepDirection);
+            laserSweeps.add(laser);
+            
+            boss.resetLaserSweepTimer();
+            System.out.println("LASER SWEEP INCOMING! Direction: " + (sweepDirection == 0 ? "HORIZONTAL" : "VERTICAL"));
+        }
+    }
+    
+    private void handleHomingMissiles() {
+        if (boss.shouldFireHomingMissiles()) {
+            // Spawn 2-4 homing missiles from boss position
+            int missileCount = 2 + randomizer.nextInt(3); // 2-4 missiles
+            
+            for (int i = 0; i < missileCount; i++) {
+                int offsetX = (i - missileCount/2) * 30; // Spread them out
+                HomingMissile missile = new HomingMissile(
+                    boss.getX() + offsetX, 
+                    boss.getY() + 40
+                );
+                // Set initial target to player position
+                missile.updateTarget(player.getX(), player.getY());
+                homingMissiles.add(missile);
+            }
+            
+            boss.resetHomingMissileTimer();
+            System.out.println("HOMING MISSILES LAUNCHED! Count: " + missileCount);
+        }
+    }
+    
+    private void handleEnvironmentalHazards() {
+        if (boss.shouldCreateEnvironmentalHazard()) {
+            // Create random environmental hazard
+            int hazardType = randomizer.nextInt(2); // 0 = falling debris, 1 = danger zone
+            
+            int x, y;
+            if (hazardType == 0) { // Falling debris
+                x = randomizer.nextInt(BOARD_WIDTH - 100);
+                y = -50; // Start above screen
+            } else { // Danger zone
+                x = randomizer.nextInt(BOARD_WIDTH - 200);
+                y = 200 + randomizer.nextInt(200); // Lower area
+            }
+            
+            EnvironmentalHazard hazard = new EnvironmentalHazard(hazardType, x, y);
+            environmentalHazards.add(hazard);
+            
+            boss.resetEnvironmentalHazardTimer();
+            System.out.println("ENVIRONMENTAL HAZARD CREATED! Type: " + (hazardType == 0 ? "FALLING DEBRIS" : "DANGER ZONE"));
+        }
+    }
+    
+    private void handleHeartSpawning() {
+        // Spawn heart powerups occasionally during boss fight - higher chance when player has fewer lives
+        int heartChance = 1200; // Base chance: ~5% per second at 60 FPS - increased heart spawning
+        
+        // Increase heart spawn rate when player has fewer lives
+        if (lives == 1) {
+            heartChance = 600; // 10% per second when player has 1 life - very frequent
+        } else if (lives == 2) {
+            heartChance = 900; // 6.7% per second when player has 2 lives - more frequent
+        }
+        
+        if (randomizer.nextInt(heartChance) == CHANCE) {
+            int x = getSafeSpawnX();
+            PowerUp heart = new Heart(x, 0);
+            powerups.add(heart);
+            System.out.println("HEART POWERUP SPAWNED! Player lives: " + lives);
+        }
+    }
+    
+    private void handleGeneralPowerupSpawning() {
+        // Simple frequent powerup spawning - SpeedUp and MultiShot every few seconds
+        int powerupChance = 300; // MUCH higher chance: spawn every ~5 seconds at 60 FPS
+        
+        if (randomizer.nextInt(powerupChance) == CHANCE) {
+            int x = getSafeSpawnX();
+            
+            // 50/50 chance between SpeedUp and MultiShot
+            PowerUp powerup;
+            if (randomizer.nextBoolean()) {
+                powerup = new SpeedUp(x, 0);
+                System.out.println("SPEEDUP POWERUP SPAWNED!");
+            } else {
+                powerup = new MultiShot(x, 0);
+                System.out.println("MULTISHOT POWERUP SPAWNED!");
+            }
+            powerups.add(powerup);
+        }
+    }
+    
+    private void handleBossTeleportation() {
+        if (boss.shouldTeleport()) {
+            System.out.println("BOSS TELEPORTING!");
+            // Teleportation is handled internally by the boss
+        }
+    }
+    
+    private int getSafeSpawnX() {
+        // Calculate safe arena bounds to avoid red death zones
+        if (boss != null) {
+            int healthLost = 100 - boss.getHealth();
+            int shrinkAmount = healthLost * 3; // 3 pixels per health lost
+            int currentArenaWidth = Math.max(BOARD_WIDTH - shrinkAmount, BOARD_WIDTH / 2);
+            int currentArenaLeft = (BOARD_WIDTH - currentArenaWidth) / 2;
+            
+            // Spawn within safe arena with some margin
+            int margin = 30; // 30 pixel margin from arena edges
+            int safeAreaLeft = currentArenaLeft + margin;
+            int safeAreaWidth = currentArenaWidth - (margin * 2);
+            
+            // Ensure we have a minimum safe area
+            if (safeAreaWidth < 100) {
+                safeAreaLeft = BOARD_WIDTH / 2 - 50;
+                safeAreaWidth = 100;
+            }
+            
+            return safeAreaLeft + randomizer.nextInt(safeAreaWidth);
+        } else {
+            // Fallback if no boss (shouldn't happen)
+            return 50 + randomizer.nextInt(BOARD_WIDTH - 100);
+        }
+    }
+    
+    private void updateEpicMechanics() {
+        // Update minions
+        Iterator<Enemy> minionIterator = minions.iterator();
+        while (minionIterator.hasNext()) {
+            Enemy minion = minionIterator.next();
+            if (minion.isVisible()) {
+                minion.act(direction);
+                
+                // Check if minion reached ground (exactly like Wave 1 enemies)
+                int y = minion.getY();
+                if (y > GROUND - ALIEN_HEIGHT) {
+                    // Minion reached bottom - lose a life (same as Scene1)
+                    lives--;
+                    minion.setDying(true);
+                    System.out.println("MINION REACHED GROUND! Lives remaining: " + lives);
+                    if (lives <= 0) {
+                        player.die();
+                        inGame = false;
+                        message = "Game Over - Minion Invasion!";
+                    }
+                }
+                
+                // Minions drop bombs occasionally
+                if (minion instanceof FastMinion) {
+                    FastMinion fastMinion = (FastMinion) minion;
+                    if (randomizer.nextInt(fastMinion.getBombDropChance()) == CHANCE) {
+                        bossBombs.add(fastMinion.dropBomb());
+                    }
+                } else if (minion instanceof SlowMinion) {
+                    SlowMinion slowMinion = (SlowMinion) minion;
+                    if (randomizer.nextInt(slowMinion.getBombDropChance()) == CHANCE) {
+                        bossBombs.add(slowMinion.dropBomb());
+                    }
+                } else if (minion instanceof TankMinion) {
+                    TankMinion tankMinion = (TankMinion) minion;
+                    if (randomizer.nextInt(tankMinion.getBombDropChance()) == CHANCE) {
+                        bossBombs.add(tankMinion.dropBomb());
+                    }
+                }
+            } else {
+                minionIterator.remove();
+            }
+        }
+        
+        // Update shield generators
+        shieldGenerators.removeIf(generator -> {
+            generator.act();
+            return !generator.isVisible() || generator.isDestroyed();
+        });
+        
+        // Check if all shield generators are destroyed
+        if (boss.isShielded() && shieldGenerators.isEmpty()) {
+            boss.removeShield();
+            System.out.println("ALL SHIELD GENERATORS DESTROYED - BOSS VULNERABLE!");
+        }
+        
+        // Update laser sweeps
+        laserSweeps.removeIf(laser -> {
+            laser.act();
+            return laser.isFinished();
+        });
+        
+        // Update homing missiles
+        homingMissiles.removeIf(missile -> {
+            // Update target to current player position
+            missile.updateTarget(player.getX() + PLAYER_WIDTH/2, player.getY() + PLAYER_HEIGHT/2);
+            missile.act();
+            return !missile.isVisible();
+        });
+        
+        // Update environmental hazards
+        environmentalHazards.removeIf(hazard -> {
+            hazard.act();
+            return hazard.isFinished();
+        });
+    }
+    
+    private void handleEpicCollisions() {
+        // Player vs Minions
+        for (Enemy minion : minions) {
+            if (minion.isVisible() && player.isVisible() && 
+                player.getX() < minion.getX() + 30 && 
+                player.getX() + PLAYER_WIDTH > minion.getX() &&
+                player.getY() < minion.getY() + 30 && 
+                player.getY() + PLAYER_HEIGHT > minion.getY()) {
+                
+                // Player hit by minion
+                player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                player.setDying(true);
+                minion.setDying(true);
+                break;
+            }
+        }
+        
+        // Shots vs Minions
+        for (Shot shot : shots) {
+            if (shot.isVisible()) {
+                Iterator<Enemy> minionIterator = minions.iterator();
+                while (minionIterator.hasNext()) {
+                    Enemy minion = minionIterator.next();
+                    if (minion.isVisible() && 
+                        shot.getX() >= minion.getX() && shot.getX() <= minion.getX() + 30 &&
+                        shot.getY() >= minion.getY() && shot.getY() <= minion.getY() + 30) {
+                        
+                        // Hit minion
+                        explosions.add(new Explosion(shot.getX(), shot.getY()));
+                        
+                        if (minion instanceof FastMinion) {
+                            ((FastMinion) minion).takeDamage();
+                            score += 20;
+                        } else if (minion instanceof SlowMinion) {
+                            ((SlowMinion) minion).takeDamage();
+                            score += 30;
+                        } else if (minion instanceof TankMinion) {
+                            ((TankMinion) minion).takeDamage();
+                            score += 40;
+                        }
+                        
+                        shot.die();
+                        
+                        if (minion.isDying()) {
+                            minionIterator.remove();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Shots vs Shield Generators - Reduced collision box for better precision
+        for (Shot shot : shots) {
+            if (shot.isVisible()) {
+                for (ShieldGenerator generator : shieldGenerators) {
+                    if (generator.isVisible() && 
+                        shot.getX() >= generator.getX() + 8 && shot.getX() <= generator.getX() + 32 &&
+                        shot.getY() >= generator.getY() + 8 && shot.getY() <= generator.getY() + 32) {
+                        
+                        // Hit shield generator
+                        System.out.println("[DEBUG] Shot hit shield generator at (" + generator.getX() + ", " + generator.getY() + ")");
+                        explosions.add(new Explosion(shot.getX(), shot.getY()));
+                        generator.takeDamage();
+                        shot.die();
+                        score += 100; // High score for hitting shield generator
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Player vs Laser Sweeps
+        for (LaserSweep laser : laserSweeps) {
+            if (laser.checkCollision(player.getX(), player.getY(), PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                // Player hit by laser
+                player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                player.setDying(true);
+                break;
+            }
+        }
+        
+        // Player vs Homing Missiles
+        for (HomingMissile missile : homingMissiles) {
+            if (missile.checkCollision(player.getX(), player.getY(), PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                // Player hit by homing missile
+                player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                player.setDying(true);
+                missile.explode();
+                break;
+            }
+        }
+        
+        // Player vs Environmental Hazards
+        for (EnvironmentalHazard hazard : environmentalHazards) {
+            if (hazard.checkCollision(player.getX(), player.getY(), PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                // Player hit by environmental hazard
+                player.setImage(new ImageIcon(IMG_EXPLOSION).getImage());
+                player.setDying(true);
+                break;
+            }
+        }
+    }
+    
     private void checkRedZoneDeath() {
         if (boss != null && player.isVisible() && !player.isDying()) {
-            // Calculate current arena bounds
-            int healthLost = 20 - boss.getHealth();
-            int shrinkAmount = healthLost * 15; // 15 pixels per health lost
+            // Calculate current arena bounds (updated for 100 HP)
+            int healthLost = 100 - boss.getHealth();
+            int shrinkAmount = healthLost * 3; // 3 pixels per health lost (100 HP system)
             
             int currentArenaWidth = Math.max(BOARD_WIDTH - shrinkAmount, BOARD_WIDTH / 2);
             int currentArenaLeft = (BOARD_WIDTH - currentArenaWidth) / 2;
@@ -916,9 +1450,9 @@ public class BossFight extends JPanel {
     
     private void updateArenaSize() {
         if (boss != null) {
-            // Shrink arena based on boss health (more damage = smaller arena)
-            int healthLost = 20 - boss.getHealth();
-            int shrinkAmount = healthLost * 15; // 15 pixels per health lost
+            // Shrink arena based on boss health (more damage = smaller arena) - Updated for 100 HP
+            int healthLost = 100 - boss.getHealth();
+            int shrinkAmount = healthLost * 3; // 3 pixels per health lost (100 HP system)
             
             arenaWidth = Math.max(BOARD_WIDTH - shrinkAmount, BOARD_WIDTH / 2); // Don't shrink below half
             arenaLeft = (BOARD_WIDTH - arenaWidth) / 2; // Center the arena
@@ -1014,20 +1548,24 @@ public class BossFight extends JPanel {
             // Shooting with shotType
             
             if (key == KeyEvent.VK_SPACE && inGame) {
-                System.out.println("Shots: " + shots.size());
-                if (shots.size() < 5) {
+                System.out.println("[DEBUG] SPACE pressed - Player visible: " + player.isVisible() + ", dying: " + player.isDying() + ", current shots: " + shots.size());
+                if (player.isVisible() && !player.isDying()) {
+                    System.out.println("[DEBUG] Creating shots - Player position: (" + x + ", " + y + "), shotType: " + player.getShotType());
                     if (player.getShotType() == 1) {
                         // One straight shot
                         shots.add(new Shot(x, y, 0, -20));
+                        System.out.println("[DEBUG] Added single shot");
                     } else if (player.getShotType() == 2) {
                         // Two diagonal shots
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
+                        System.out.println("[DEBUG] Added 2 diagonal shots");
                     } else if (player.getShotType() == 3) {
                         // Two diagonals + one center
                         shots.add(new Shot(x, y, 0, -20));       // center
                         shots.add(new Shot(x - 10, y, -5, -20)); // left
                         shots.add(new Shot(x + 10, y, 5, -20));  // right
+                        System.out.println("[DEBUG] Added 3 shots");
                     }
                     else if (player.getShotType() == 4) {
                         shots.add(new Shot(x - 8, y, 0, -20)); // left straight
@@ -1035,7 +1573,10 @@ public class BossFight extends JPanel {
                         // Two diagonal
                         shots.add(new Shot(x - 15, y, -5, -20)); // diagonal left
                         shots.add(new Shot(x + 15, y, 5, -20));  // diagonal right
+                        System.out.println("[DEBUG] Added 4 shots");
                     }
+                } else {
+                    System.out.println("[DEBUG] Shot creation blocked - Player visible: " + player.isVisible() + ", dying: " + player.isDying() + ", shots: " + shots.size());
                 }
             }
             
