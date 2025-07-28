@@ -24,7 +24,7 @@ This project reimagines **Konami’s Life Force / Salamander** side-scroll shoot
 The game is built with Java (Swing/AWT) and features **two scrolling stages**, a **boss fight**, **animated sprites**, multiple enemies, and a **power-up system**.  
 Development is limited to the class codebase to prove originality and understanding.
 
-🕹 Gameplay Video (5 min) → **[YouTube Link Here]**
+🕹 Gameplay Video (10 min) → **[YouTube Link Here](https://youtu.be/TZaROLjQLn4)**
 
 ---
 
@@ -105,7 +105,7 @@ java -jar target/space-invaders.jar
 ## Team
 
 Lut Lat Aung - 6511163 [Github](https://github.com/Lut-Lat-Aung)<br>
-Lu Phone Maw -                   <br>
-Wai Yan Paing -                  <br>
+Lu Phone Maw - 6511157 [Github](https://github.com/luphone04)<br>
+Wai Yan Paing - 6511171 [Github](https://github.com/Lucas1792003)<br>
 
 
